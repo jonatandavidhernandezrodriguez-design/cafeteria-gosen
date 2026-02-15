@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { readJSON, writeJSON } from '@/app/lib/db';
+import { readStorage, writeStorage } from '@/app/lib/storage';
 
 interface Customer {
   id: string;
@@ -13,9 +13,10 @@ interface Customer {
 
 export async function GET() {
   try {
-    const clientes: Customer[] = await readJSON('clientes.json');
+    const clientes = await readStorage<Customer[]>('clientes', []);
     return NextResponse.json(clientes);
   } catch (error) {
+    console.error('GET /api/clientes error:', error);
     return NextResponse.json({ error: 'Failed to fetch customers' }, { status: 500 });
   }
 }
@@ -23,7 +24,7 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const newCustomer: Omit<Customer, 'id'> = await req.json();
-    const clientes: Customer[] = await readJSON('clientes.json');
+    const clientes = await readStorage<Customer[]>('clientes', []);
     
     const customer: Customer = {
       ...newCustomer,
@@ -31,18 +32,20 @@ export async function POST(req: NextRequest) {
     };
     
     clientes.push(customer);
-    await writeJSON('clientes.json', clientes);
+    await writeStorage('clientes', clientes);
     
     return NextResponse.json(customer, { status: 201 });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to create customer' }, { status: 500 });
+    console.error('POST /api/clientes error:', error);
+    const errorMsg = error instanceof Error ? error.message : 'Failed to create customer';
+    return NextResponse.json({ error: errorMsg }, { status: 500 });
   }
 }
 
 export async function PUT(req: NextRequest) {
   try {
     const updatedCustomer: Customer = await req.json();
-    const clientes: Customer[] = await readJSON('clientes.json');
+    const clientes = await readStorage<Customer[]>('clientes', []);
     
     const index = clientes.findIndex(c => c.id === updatedCustomer.id);
     if (index === -1) {
@@ -50,10 +53,12 @@ export async function PUT(req: NextRequest) {
     }
     
     clientes[index] = updatedCustomer;
-    await writeJSON('clientes.json', clientes);
+    await writeStorage('clientes', clientes);
     
     return NextResponse.json(updatedCustomer);
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to update customer' }, { status: 500 });
+    console.error('PUT /api/clientes error:', error);
+    const errorMsg = error instanceof Error ? error.message : 'Failed to update customer';
+    return NextResponse.json({ error: errorMsg }, { status: 500 });
   }
 }

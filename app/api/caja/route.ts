@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { readJSON, writeJSON } from '@/app/lib/db';
+import { readStorage, writeStorage } from '@/app/lib/storage';
 
 interface Cashbox {
   isOpen: boolean;
@@ -12,9 +12,15 @@ interface Cashbox {
 
 export async function GET() {
   try {
-    const caja: Cashbox = await readJSON('caja.json');
+    const caja = await readStorage<Cashbox>('caja', { 
+      isOpen: false, 
+      openingAmount: 0, 
+      openingTime: null, 
+      dailySales: 0 
+    });
     return NextResponse.json(caja);
   } catch (error) {
+    console.error('GET /api/caja error:', error);
     return NextResponse.json({ error: 'Failed to fetch cashbox' }, { status: 500 });
   }
 }
@@ -22,10 +28,12 @@ export async function GET() {
 export async function PUT(req: NextRequest) {
   try {
     const updatedCaja: Cashbox = await req.json();
-    await writeJSON('caja.json', updatedCaja);
+    await writeStorage('caja', updatedCaja);
     
     return NextResponse.json(updatedCaja);
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to update cashbox' }, { status: 500 });
+    console.error('PUT /api/caja error:', error);
+    const errorMsg = error instanceof Error ? error.message : 'Failed to update cashbox';
+    return NextResponse.json({ error: errorMsg }, { status: 500 });
   }
 }

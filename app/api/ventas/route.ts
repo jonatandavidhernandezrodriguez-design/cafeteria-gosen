@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { readJSON, writeJSON } from '@/app/lib/db';
+import { readStorage, writeStorage } from '@/app/lib/storage';
 
 interface Cashbox {
   isOpen: boolean;
@@ -30,9 +30,10 @@ interface Sale {
 
 export async function GET() {
   try {
-    const ventas: Sale[] = await readJSON('ventas.json');
+    const ventas = await readStorage<Sale[]>('ventas', []);
     return NextResponse.json(ventas);
   } catch (error) {
+    console.error('GET /api/ventas error:', error);
     return NextResponse.json({ error: 'Failed to fetch sales' }, { status: 500 });
   }
 }
@@ -40,7 +41,7 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const newSale: Omit<Sale, 'id'> = await req.json();
-    const ventas: Sale[] = await readJSON('ventas.json');
+    const ventas = await readStorage<Sale[]>('ventas', []);
     
     const sale: Sale = {
       ...newSale,
@@ -49,15 +50,17 @@ export async function POST(req: NextRequest) {
     };
     
     ventas.push(sale);
-    await writeJSON('ventas.json', ventas);
+    await writeStorage('ventas', ventas);
     
     // Update cashbox
-    const caja = await readJSON<Cashbox>('caja.json');
+    const caja = await readStorage<Cashbox>('caja', { isOpen: false, openingAmount: 0, openingTime: null, dailySales: 0 });
     caja.dailySales += sale.total;
-    await writeJSON('caja.json', caja);
+    await writeStorage('caja', caja);
     
     return NextResponse.json(sale, { status: 201 });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to create sale' }, { status: 500 });
+    console.error('POST /api/ventas error:', error);
+    const errorMsg = error instanceof Error ? error.message : 'Failed to create sale';
+    return NextResponse.json({ error: errorMsg }, { status: 500 });
   }
 }
