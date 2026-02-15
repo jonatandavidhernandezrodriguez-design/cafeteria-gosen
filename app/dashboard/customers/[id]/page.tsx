@@ -3,8 +3,19 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { PageContainer, Button, Card } from '@/app/components/ui';
-import { getCustomer, getCustomerHistory, Customer } from '@/app/lib/store';
+import { getCustomer, getCustomerHistory, Customer, SaleItem } from '@/app/lib/store';
 import { formatCOP } from '@/app/lib/currency';
+
+interface HistoryItem {
+  id: string;
+  date: string;
+  type: 'sale';
+  amount: number;
+  paymentMethod: 'cash' | 'nequi';
+  status: string;
+  items: string;
+  itemsArray?: SaleItem[];
+}
 
 interface CustomerDetailPageProps {
   params: {
@@ -14,7 +25,7 @@ interface CustomerDetailPageProps {
 
 export default function CustomerDetailPage({ params }: CustomerDetailPageProps) {
   const [customer, setCustomer] = useState<Customer | undefined>(undefined);
-  const [history, setHistory] = useState<any[]>([]);
+  const [history, setHistory] = useState<HistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -93,91 +104,74 @@ export default function CustomerDetailPage({ params }: CustomerDetailPageProps) 
             <p className="text-gray-500">Sin historial de transacciones</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b-2 border-gray-200">
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
-                    Fecha
-                  </th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
-                    Tipo
-                  </th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
-                    Método
-                  </th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
-                    Descripción
-                  </th>
-                  <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700">
-                    Total
-                  </th>
-                  <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700">
-                    Saldo
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {history.map((item, index) => (
-                  <tr
-                    key={item.id}
-                    className="border-b border-gray-200 hover:bg-gray-50 transition-colors"
-                  >
-                    <td className="py-3 px-4">
-                      <p className="text-sm text-gray-600">
-                        {new Date(item.date).toLocaleDateString('es-CO')}
-                      </p>
-                    </td>
-                    <td className="py-3 px-4">
-                      <span
-                        className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
-                          item.type === 'sale'
-                            ? 'bg-orange-100 text-orange-700'
-                            : 'bg-green-100 text-green-700'
-                        }`}
-                      >
-                        {item.type === 'sale' ? 'Venta' : 'Abono'}
-                      </span>
-                    </td>
-                    <td className="py-3 px-4">
-                      <div className="text-xs">
-                        {item.type === 'sale' && item.paymentMethod ? (
-                          <span>
-                            {item.paymentMethod === 'cash' ? '💵 Efectivo' :
-                             item.paymentMethod === 'nequi' ? '📱 Nequi' :
-                             '💳 Fiado'}
-                          </span>
-                        ) : (
-                          <span className="text-gray-400">-</span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="py-3 px-4">
-                      <p className="text-sm text-gray-700">{item.description}</p>
-                    </td>
-                    <td className="py-3 px-4 text-right">
-                      <p
-                        className={`font-semibold ${
-                          item.amount > 0 ? 'text-red-600' : 'text-green-600'
-                        }`}
-                      >
-                        {item.amount > 0 ? '+' : ''}{formatCOP(Math.abs(item.amount))}
-                      </p>
-                    </td>
-                    <td className="py-3 px-4 text-right">
-                      <p className="font-semibold text-gray-900">
-                        {formatCOP(item.balanceAfter)}
-                      </p>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="space-y-4">
+            {history.map((item) => (
+              <div
+                key={item.id}
+                className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors"
+              >
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Fecha */}
+                  <div>
+                    <p className="text-xs text-gray-600 uppercase tracking-wide font-semibold mb-1">
+                      📅 Fecha
+                    </p>
+                    <p className="text-sm font-semibold text-gray-900">
+                      {new Date(item.date).toLocaleDateString('es-CO')}
+                    </p>
+                    <p className="text-xs text-gray-600">
+                      {new Date(item.date).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}
+                    </p>
+                  </div>
+
+                  {/* Método de Pago */}
+                  <div>
+                    <p className="text-xs text-gray-600 uppercase tracking-wide font-semibold mb-1">
+                      💳 Método de Pago
+                    </p>
+                    <p className="text-sm font-semibold text-gray-900">
+                      {item.paymentMethod === 'cash' ? '💵 Efectivo' :
+                       item.paymentMethod === 'nequi' ? '📱 Nequi' :
+                       '💳 Crédito'}
+                    </p>
+                  </div>
+
+                  {/* Artículos */}
+                  <div className="md:col-span-2">
+                    <p className="text-xs text-gray-600 uppercase tracking-wide font-semibold mb-1">
+                      📦 Artículos
+                    </p>
+                    <div className="text-sm text-gray-900">
+                      {item.itemsArray?.length ? (
+                        <ul className="space-y-1">
+                          {item.itemsArray.map((prod, idx) => (
+                            <li key={idx} className="text-gray-700">
+                              • {prod.name} <span className="text-xs text-gray-600">x{prod.quantity}</span> — {formatCOP(prod.subtotal)}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className="text-gray-500">{item.items}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Total */}
+                  <div>
+                    <p className="text-xs text-gray-600 uppercase tracking-wide font-semibold mb-1">
+                      💰 Total Pagado
+                    </p>
+                    <p className="text-lg font-bold text-blue-600">
+                      {formatCOP(item.amount)}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </Card>
 
-      {/* Resumen Final */}
     </PageContainer>
   );
 }

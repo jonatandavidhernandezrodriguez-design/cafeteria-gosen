@@ -254,7 +254,8 @@ export async function getCustomerHistory(customerId: string) {
       amount: s.total,
       paymentMethod: s.paymentMethod,
       status: s.status,
-      description: s.items.map((item) => `${item.name} x${item.quantity}`).join(', '),
+      items: s.items.map((item) => `${item.name} x${item.quantity}`).join(', '),
+      itemsArray: s.items,
     }))
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 

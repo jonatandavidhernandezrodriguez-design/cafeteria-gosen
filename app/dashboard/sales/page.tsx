@@ -182,7 +182,11 @@ export default function SalesPage() {
     });
   };
 
-  const closeReceipt = () => {
+  const closeReceipt = async () => {
+    // Recargar productos con stock actualizado
+    const updatedProds = await getProducts();
+    setProducts(updatedProds);
+    
     // Limpiar carrito y formulario
     setCart([]);
     setCustomerName('');

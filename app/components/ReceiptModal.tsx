@@ -37,10 +37,11 @@ export default function ReceiptModal({
     nequi: { icon: '📱', label: 'NEQUI' },
   }[paymentMethod];
 
-  const subtotal = total;
-  const iva = Math.round(subtotal * 0.19);
-  const totalWithTax = subtotal + iva;
   const receiptNumber = `RCP${Date.now().toString().slice(-6)}`;
+
+  const handlePrint = () => {
+    window.print();
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -91,19 +92,11 @@ export default function ReceiptModal({
             )}
           </div>
 
-          {/* Totales */}
+          {/* Total sin IVA */}
           <div className="space-y-2 pb-4 mb-4 border-b-2 border-dashed border-gray-400">
-            <div className="flex justify-between text-xs">
-              <span>SUBTOTAL:</span>
-              <span className="font-semibold">{formatCOP(subtotal)}</span>
-            </div>
-            <div className="flex justify-between text-xs">
-              <span>IVA (19%):</span>
-              <span className="font-semibold">{formatCOP(iva)}</span>
-            </div>
             <div className="flex justify-between text-xl font-bold pt-2">
               <span>TOTAL:</span>
-              <span className="text-blue-600">{formatCOP(totalWithTax)}</span>
+              <span className="text-blue-600">{formatCOP(total)}</span>
             </div>
           </div>
 
@@ -116,8 +109,6 @@ export default function ReceiptModal({
             </div>
           </div>
 
-
-
           {/* Pie de Página */}
           <div className="text-center text-xs text-gray-600 border-t-2 border-dashed border-gray-400 pt-3">
             <p>✅ COMPRA REALIZADA EXITOSAMENTE</p>
@@ -125,13 +116,21 @@ export default function ReceiptModal({
             <p className="mt-1">¡Vuelve pronto!</p>
           </div>
 
-          {/* Botón Cerrar */}
-          <button
-            onClick={onClose}
-            className="w-full mt-6 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold rounded-lg transition duration-200"
-          >
-            Volver al Inicio
-          </button>
+          {/* Botones */}
+          <div className="flex gap-3 mt-6">
+            <button
+              onClick={handlePrint}
+              className="flex-1 px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold rounded-lg transition duration-200"
+            >
+              🖨️ Imprimir
+            </button>
+            <button
+              onClick={onClose}
+              className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold rounded-lg transition duration-200"
+            >
+              ✓ Cerrar
+            </button>
+          </div>
         </div>
       </div>
     </div>
