@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { PageContainer, Button } from '@/app/components/ui';
@@ -31,21 +31,27 @@ export default function EditProductPage({ params }: EditProductPageProps) {
   const [showPINModal, setShowPINModal] = useState(true);
   const [isPINVerified, setIsPINVerified] = useState(false);
 
-  // Buscar el producto desde store
-  const product = getProduct(params.id) as Product | undefined;
+  // Buscar el producto desde store (async)
+  const [product, setProduct] = useState<Product | undefined>(undefined);
+  const [productLoading, setProductLoading] = useState(true);
 
-  if (!product) {
-    return (
-      <PageContainer title="Producto no encontrado">
-        <div className="text-center py-12">
-          <p className="text-gray-600 mb-4">No pudimos encontrar el producto que buscas</p>
-          <Link href="/dashboard/products">
-            <Button variant="primary">Volver a Productos</Button>
-          </Link>
-        </div>
-      </PageContainer>
-    );
-  }
+  useEffect(() => {
+    let mounted = true;
+    const load = async () => {
+      try {
+        const p = await getProduct(params.id);
+        if (mounted) setProduct(p);
+      } catch (error) {
+        console.error('Error loading product:', error);
+      } finally {
+        if (mounted) setProductLoading(false);
+      }
+    };
+    load();
+    return () => {
+      mounted = false;
+    };
+  }, [params.id]);
 
   const handlePINSuccess = () => {
     setIsPINVerified(true);
@@ -72,7 +78,7 @@ export default function EditProductPage({ params }: EditProductPageProps) {
         category: formData.category,
       };
 
-      const ok = updateProduct(params.id, updates);
+      const ok = await updateProduct(params.id, updates);
       if (!ok) throw new Error('No se pudo actualizar producto');
 
       // Redirigir a la página de productos
@@ -101,23 +107,36 @@ export default function EditProductPage({ params }: EditProductPageProps) {
 
   return (
     <PageContainer
-      title={`Editar: ${product.name}`}
+      title={`Editar: ${product?.name || 'Producto'}`}
       description="Actualiza los detalles del producto"
     >
-      <div className="mb-6">
-        <Link href="/dashboard/products">
-          <Button variant="ghost" size="md">
-            ← Volver a Productos
-          </Button>
-        </Link>
-      </div>
-      
-      <ProductForm
-        product={product}
-        onSubmit={handleSubmit}
-        onCancel={() => router.back()}
-        isLoading={isLoading}
-      />
+      {productLoading ? (
+        <div className="text-center py-12">Cargando producto...</div>
+      ) : !product ? (
+        <div className="text-center py-12">
+          <p className="text-gray-600 mb-4">No pudimos encontrar el producto que buscas</p>
+          <Link href="/dashboard/products">
+            <Button variant="primary">Volver a Productos</Button>
+          </Link>
+        </div>
+      ) : (
+        <>
+          <div className="mb-6">
+            <Link href="/dashboard/products">
+              <Button variant="ghost" size="md">
+                ← Volver a Productos
+              </Button>
+            </Link>
+          </div>
+
+          <ProductForm
+            product={product}
+            onSubmit={handleSubmit}
+            onCancel={() => router.back()}
+            isLoading={isLoading}
+          />
+        </>
+      )}
     </PageContainer>
   );
 }

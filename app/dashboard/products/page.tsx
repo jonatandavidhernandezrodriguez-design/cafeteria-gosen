@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { PageContainer, Button } from '@/app/components/ui';
@@ -11,7 +11,7 @@ import PINVerification from '@/app/components/PINVerification';
 
 export default function ProductsPage() {
   const router = useRouter();
-  const [products, setProducts] = useState<Product[]>(getProducts());
+  const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('');
@@ -29,25 +29,38 @@ export default function ProductsPage() {
     return matchesSearch && matchesCategory && matchesStatus;
   });
 
-  const handleDelete = (productId: string) => {
+  const loadProducts = async () => {
+    try {
+      const data = await getProducts();
+      setProducts(data);
+    } catch (error) {
+      console.error('Error loading products:', error);
+    }
+  };
+
+  useEffect(() => {
+    loadProducts();
+  }, []);
+
+  const handleDelete = async (productId: string) => {
     if (!isPINVerified) {
       setPendingAction({ action: 'delete', productId });
       setShowActionPINModal(true);
       return;
     }
     if (!confirm('¿Eliminar producto? Esta acción es irreversible.')) return;
-    deleteProduct(productId);
-    setProducts(getProducts());
+    await deleteProduct(productId);
+    await loadProducts();
   };
 
-  const handleToggleActive = (productId: string, isActive: boolean) => {
+  const handleToggleActive = async (productId: string, isActive: boolean) => {
     if (!isPINVerified) {
       setPendingAction({ action: 'toggle', productId });
       setShowActionPINModal(true);
       return;
     }
-    updateProduct(productId, { isActive });
-    setProducts(getProducts());
+    await updateProduct(productId, { isActive });
+    await loadProducts();
   };
 
   const handleEdit = (product: Product) => {
@@ -64,21 +77,21 @@ export default function ProductsPage() {
     setShowPINModal(false);
   };
 
-  const handleActionPINSuccess = () => {
+  const handleActionPINSuccess = async () => {
     setIsPINVerified(true);
     setShowActionPINModal(false);
     
     if (pendingAction) {
       if (pendingAction.action === 'delete' && pendingAction.productId) {
         if (confirm('¿Eliminar producto? Esta acción es irreversible.')) {
-          deleteProduct(pendingAction.productId);
-          setProducts(getProducts());
+          await deleteProduct(pendingAction.productId);
+          await loadProducts();
         }
       } else if (pendingAction.action === 'toggle' && pendingAction.productId) {
         const product = products.find(p => p.id === pendingAction.productId);
         if (product) {
-          updateProduct(pendingAction.productId, { isActive: !product.isActive });
-          setProducts(getProducts());
+          await updateProduct(pendingAction.productId, { isActive: !product.isActive });
+          await loadProducts();
         }
       } else if (pendingAction.action === 'edit' && pendingAction.productId) {
         router.push(`/dashboard/products/${pendingAction.productId}/edit`);

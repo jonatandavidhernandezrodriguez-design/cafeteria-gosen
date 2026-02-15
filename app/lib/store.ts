@@ -200,10 +200,10 @@ export async function getOrCreateCustomer(name: string, phone?: string): Promise
         totalPurchases: 0,
         totalDebt: 0,
       }),
-    }).then((res) => res.json());
+    }).then((res) => res.json()) as Customer;
   }
 
-  return customer;
+  return customer!;
 }
 
 export async function updateCustomer(id: string, updates: Partial<Customer>): Promise<boolean> {

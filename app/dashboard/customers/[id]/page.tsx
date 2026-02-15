@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { PageContainer, Button, Card } from '@/app/components/ui';
-import { getCustomer, getCustomerHistory } from '@/app/lib/store';
+import { getCustomer, getCustomerHistory, Customer } from '@/app/lib/store';
 import { formatCOP } from '@/app/lib/currency';
 
 interface CustomerDetailPageProps {
@@ -13,8 +13,30 @@ interface CustomerDetailPageProps {
 }
 
 export default function CustomerDetailPage({ params }: CustomerDetailPageProps) {
-  const customer = getCustomer(params.id);
-  const [history] = useState(getCustomerHistory(params.id));
+  const [customer, setCustomer] = useState<Customer | undefined>(undefined);
+  const [history, setHistory] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const load = async () => {
+      const cust = await getCustomer(params.id);
+      const hist = await getCustomerHistory(params.id);
+      setCustomer(cust);
+      setHistory(hist);
+      setLoading(false);
+    };
+    load();
+  }, [params.id]);
+
+  if (loading) {
+    return (
+      <PageContainer title="Cargando...">
+        <div className="text-center py-12">
+          <p className="text-gray-600">Cargando datos del cliente...</p>
+        </div>
+      </PageContainer>
+    );
+  }
 
   if (!customer) {
     return (
@@ -43,13 +65,13 @@ export default function CustomerDetailPage({ params }: CustomerDetailPageProps) 
       </div>
 
       {/* Información del Cliente */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <Card variant="elevated" padding="lg">
           <p className="text-xs text-gray-600 uppercase tracking-wide font-semibold mb-1">
             Teléfono
           </p>
           <p className="text-lg font-semibold text-gray-900">
-            {customer.phoneNumber || '-'}
+            {customer.phone || '-'}
           </p>
         </Card>
         <Card variant="elevated" padding="lg">
@@ -58,14 +80,6 @@ export default function CustomerDetailPage({ params }: CustomerDetailPageProps) 
           </p>
           <p className="text-lg font-semibold text-gray-900">
             {customer.email || '-'}
-          </p>
-        </Card>
-        <Card variant="elevated" padding="lg">
-          <p className="text-xs text-gray-600 uppercase tracking-wide font-semibold mb-1">
-            Deuda Actual
-          </p>
-          <p className={`text-3xl font-bold ${debt > 0 ? 'text-red-600' : 'text-green-600'}`}>
-            {formatCOP(debt)}
           </p>
         </Card>
       </div>
@@ -164,12 +178,6 @@ export default function CustomerDetailPage({ params }: CustomerDetailPageProps) 
       </Card>
 
       {/* Resumen Final */}
-      <div className="mt-8 text-right">
-        <p className="text-sm text-gray-600 mb-2">Deuda total del cliente:</p>
-        <p className={`text-4xl font-bold ${debt > 0 ? 'text-red-600' : 'text-green-600'}`}>
-          {formatCOP(debt)}
-        </p>
-      </div>
     </PageContainer>
   );
 }

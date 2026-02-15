@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { PageContainer, Button, Card, Input } from '@/app/components/ui';
 import { Product } from '@/app/types/menu';
 import Image from 'next/image';
-import { getProducts, addSale, getProductStock, updateProductStock, recordProductSale, getOrCreateCustomer } from '@/app/lib/store';
+import { getProducts, addSale, updateProductStock, recordProductSale, getOrCreateCustomer } from '@/app/lib/store';
 import { formatCOP } from '@/app/lib/currency';
 import ReceiptModal from '@/app/components/ReceiptModal';
 
@@ -56,7 +56,7 @@ export default function SalesPage() {
   );
 
   const addToCart = async (product: Product) => {
-    const availableStock = await getProductStock(product.id);
+    const availableStock = product.stock ?? 0;
     
     setCart((prev) => {
       const existing = prev.find((item) => item.product.id === product.id);
@@ -86,13 +86,14 @@ export default function SalesPage() {
     if (quantity <= 0) {
       removeFromCart(productId);
     } else {
-      const availableStock = getProductStock(productId);
-      
+      const prod = products.find((p) => p.id === productId);
+      const availableStock = prod?.stock ?? 0;
+
       if (quantity > availableStock) {
         alert(`❌ No hay suficiente stock. Disponible: ${availableStock}`);
         return;
       }
-      
+
       setCart((prev) =>
         prev.map((item) =>
           item.product.id === productId ? { ...item, quantity } : item
@@ -113,7 +114,7 @@ export default function SalesPage() {
 
   const profit = totalPrice - totalCost;
 
-  const completeSale = () => {
+  const completeSale = async () => {
     if (cart.length === 0) {
       alert('❌ Agrega productos al carrito');
       return;
@@ -135,13 +136,14 @@ export default function SalesPage() {
 
     // Descontar stock y registrar venta de productos
     let stockError = false;
-    cart.forEach((item) => {
-      const stockUpdated = updateProductStock(item.product.id, item.quantity);
+    for (const item of cart) {
+      const stockUpdated = await updateProductStock(item.product.id, item.quantity);
       if (!stockUpdated) {
         stockError = true;
+        break;
       }
-      recordProductSale(item.product.id, item.quantity, item.product.price);
-    });
+      await recordProductSale(item.product.id, item.quantity, item.product.price);
+    }
 
     if (stockError) {
       alert('⚠️ Algunos productos no tienen stock suficiente');
@@ -149,11 +151,17 @@ export default function SalesPage() {
     }
 
     // Crear/actualizar cliente
-    const customer = getOrCreateCustomer(customerName, undefined);
+    const customer = await getOrCreateCustomer(customerName, undefined);
+
+    // Calcular subtotal e IVA (19%) y guardar venta
+    const ivaAmount = parseFloat((totalPrice * 0.19).toFixed(2));
+    const subtotalAmount = parseFloat((totalPrice - ivaAmount).toFixed(2));
 
     // Guardar venta
-    const sale = addSale({
+    const sale = await addSale({
       items: saleItems,
+      subtotal: subtotalAmount,
+      iva: ivaAmount,
       total: totalPrice,
       customerName: customerName || undefined,
       paymentMethod: paymentMethod,
@@ -210,7 +218,7 @@ export default function SalesPage() {
           {/* Grid de Productos */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {filteredProducts.map((product) => {
-              const stock = getProductStock(product.id);
+              const stock = product.stock ?? 0;
               const inCartQty = cart.find((i) => i.product.id === product.id)?.quantity ?? 0;
               const canAdd = stock > inCartQty;
 

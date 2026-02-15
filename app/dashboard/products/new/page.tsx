@@ -28,18 +28,16 @@ export default function NewProductPage() {
     try {
       const stockValue = formData.stock ? Number(formData.stock) : 0;
       
-      // Crear producto usando el store
-      const newProduct = addProduct({
+      // Crear producto usando el store (pasar sólo campos esperados por el store)
+      const newProduct = await addProduct({
         name: formData.name,
         price: Number(formData.price),
         cost: Number(formData.cost),
-        imageUrl: formData.imageUrl || '',
         isActive: formData.isActive,
-        description: formData.description,
         category: formData.category,
         stock: stockValue,
       });
-      
+
       if (!newProduct) throw new Error('No se pudo crear producto');
       
       alert('✅ Producto creado exitosamente');
