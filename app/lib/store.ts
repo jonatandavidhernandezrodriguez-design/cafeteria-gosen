@@ -95,16 +95,30 @@ export async function addProduct(product: Omit<Product, 'id'>): Promise<Product>
 }
 
 export async function updateProduct(id: string, updates: Partial<Product>): Promise<boolean> {
-  const product = await getProduct(id);
-  if (!product) return false;
+  try {
+    const product = await getProduct(id);
+    if (!product) {
+      console.error(`Product not found: ${id}`);
+      return false;
+    }
 
-  const updated = { ...product, ...updates } as Product;
-  const res = await fetch('/api/productos', {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(updated),
-  });
-  return res.ok;
+    const updated = { ...product, ...updates } as Product;
+    const res = await fetch('/api/productos', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updated),
+    });
+    
+    if (!res.ok) {
+      const error = await res.text();
+      console.error('API error:', error);
+      return false;
+    }
+    return true;
+  } catch (error) {
+    console.error('updateProduct error:', error);
+    return false;
+  }
 }
 
 export async function deleteProduct(id: string): Promise<boolean> {
@@ -244,9 +258,13 @@ export async function getCustomerHistory(customerId: string) {
   if (!customer) return [];
 
   const sales = await getSales();
+  const customerNameLower = customer.name.toLowerCase().trim();
 
   const history = sales
-    .filter((s) => s.customerName?.toLowerCase().trim() === customer.name.toLowerCase().trim())
+    .filter((s) => {
+      const saleName = (s.customerName || '').toLowerCase().trim();
+      return saleName === customerNameLower;
+    })
     .map((s) => ({
       id: s.id,
       date: s.date,
@@ -259,7 +277,6 @@ export async function getCustomerHistory(customerId: string) {
     }))
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-  console.log(`Customer: ${customer.name}, Sales found: ${history.length}`, history);
   return history;
 }
 

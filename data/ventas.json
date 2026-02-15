@@ -78,5 +78,26 @@
     "status": "completed",
     "id": "1771198060573",
     "date": "2026-02-15T23:27:40.573Z"
+  },
+  {
+    "items": [
+      {
+        "productId": "1771198741519",
+        "name": "chicha de arroz",
+        "price": 2000,
+        "cost": 0,
+        "quantity": 1,
+        "subtotal": 2000
+      }
+    ],
+    "subtotal": 1620,
+    "iva": 380,
+    "total": 2000,
+    "profit": 2000,
+    "customerName": "rrrr",
+    "paymentMethod": "cash",
+    "status": "completed",
+    "id": "1771198747988",
+    "date": "2026-02-15T23:39:07.988Z"
   }
 ]

@@ -1,1 +1,11 @@
-[]
+[
+  {
+    "name": "chicha de arroz",
+    "price": 2000,
+    "cost": 0,
+    "isActive": true,
+    "category": "",
+    "stock": 9,
+    "id": "1771198741519"
+  }
+]
