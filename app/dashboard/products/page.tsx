@@ -7,6 +7,7 @@ import { PageContainer, Button } from '@/app/components/ui';
 import { ProductCard } from '@/app/components/ProductCard';
 import { Product } from '@/app/types/menu';
 import { getProducts, deleteProduct, updateProduct } from '@/app/lib/store';
+import { obtenerClaveValida } from '@/app/lib/auth-utils';
 import PINVerification from '@/app/components/PINVerification';
 
 export default function ProductsPage() {
@@ -17,7 +18,7 @@ export default function ProductsPage() {
   const [filterCategory, setFilterCategory] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
   const [isPINVerified, setIsPINVerified] = useState(false);
-  const [showPINModal, setShowPINModal] = useState(true);
+  const [showPINModal, setShowPINModal] = useState(false);
   const [showActionPINModal, setShowActionPINModal] = useState(false);
   const [pendingAction, setPendingAction] = useState<{action: string; productId?: string} | null>(null);
 
@@ -39,6 +40,15 @@ export default function ProductsPage() {
   };
 
   useEffect(() => {
+    // Verificar si ya hay una clave válida desde localStorage
+    const pinValido = obtenerClaveValida();
+    if (pinValido) {
+      setIsPINVerified(true);
+      setShowPINModal(false);
+    } else {
+      setShowPINModal(true);
+    }
+    
     loadProducts();
   }, []);
 

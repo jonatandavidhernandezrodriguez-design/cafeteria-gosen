@@ -30,6 +30,8 @@ export interface Product {
   category: string;
   stock: number;
   isActive: boolean;
+  description?: string;
+  imageUrl?: string;
 }
 
 export interface Customer {
@@ -74,12 +76,20 @@ export async function updateProductStock(productId: string, quantity: number): P
 }
 
 export async function addProduct(product: Omit<Product, 'id'>): Promise<Product> {
-  const res = await fetch('/api/productos', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(product),
-  });
-  return res.json();
+  try {
+    const res = await fetch('/api/productos', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(product),
+    });
+    if (!res.ok) {
+      throw new Error(`API error: ${res.status} ${res.statusText}`);
+    }
+    return res.json();
+  } catch (error) {
+    console.error('Error in addProduct:', error);
+    throw error;
+  }
 }
 
 export async function updateProduct(id: string, updates: Partial<Product>): Promise<boolean> {

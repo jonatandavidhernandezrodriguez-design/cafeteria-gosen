@@ -5,12 +5,13 @@ import { PageContainer, Button, Card } from '@/app/components/ui';
 import Link from 'next/link';
 import { getProducts, getTodayRevenue, getTodayProfit, getTodayItemsSold } from '@/app/lib/store';
 import { formatCOP } from '@/app/lib/currency';
+import { obtenerClaveValida } from '@/app/lib/auth-utils';
 import { exportStatisticsToPDF, exportStatisticsToExcel } from '@/app/lib/export-utils';
 import PINVerification from '@/app/components/PINVerification';
 
 export default function DashboardHome() {
   const [showStats, setShowStats] = useState(true);
-  const [showPINModal, setShowPINModal] = useState(true);
+  const [showPINModal, setShowPINModal] = useState(false);
   const [isPINVerified, setIsPINVerified] = useState(false);
   
   const [revenue, setRevenue] = useState(0);
@@ -19,6 +20,11 @@ export default function DashboardHome() {
   const [products, setProducts] = useState<any[]>([]);
 
   useEffect(() => {
+    // Verificar si ya hay una clave válida desde localStorage
+    const pinValido = obtenerClaveValida();
+    setIsPINVerified(pinValido);
+    setShowPINModal(!pinValido);
+    
     const loadData = async () => {
       try {
         const [rev, prof, itemsSoldVal, prods] = await Promise.all([
@@ -50,7 +56,9 @@ export default function DashboardHome() {
   const lowStockProducts = products.filter(p => p.stock <= 5);
 
   const handleExportStats = (format: 'pdf' | 'excel') => {
-    setShowPINModal(true);
+    if (!isPINVerified) {
+      setShowPINModal(true);
+    }
   };
 
   const handlePINSuccess = () => {

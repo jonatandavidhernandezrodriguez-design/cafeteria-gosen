@@ -5,6 +5,7 @@ import { PageContainer, Button, Card } from '@/app/components/ui';
 import Link from 'next/link';
 import { getCustomers, getLastCustomerSale } from '@/app/lib/store';
 import { formatCOP } from '@/app/lib/currency';
+import { obtenerClaveValida } from '@/app/lib/auth-utils';
 import PINVerification from '@/app/components/PINVerification';
 
 interface Customer {
@@ -19,11 +20,20 @@ interface Customer {
 
 export default function CustomersPage() {
   const [customers, setCustomers] = useState<Customer[]>([]);
-  const [showPINModal, setShowPINModal] = useState(true);
+  const [showPINModal, setShowPINModal] = useState(false);
   const [isPINVerified, setIsPINVerified] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // Verificar si ya hay una clave válida desde localStorage
+    const pinValido = obtenerClaveValida();
+    if (pinValido) {
+      setIsPINVerified(true);
+      setShowPINModal(false);
+    } else {
+      setShowPINModal(true);
+    }
+    
     const loadData = async () => {
       try {
         const customersData = await getCustomers();

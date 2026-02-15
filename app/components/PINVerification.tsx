@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { guardarClaveConExpiracion } from '@/app/lib/auth-utils';
 
 interface PINVerificationProps {
   isOpen: boolean;
@@ -25,6 +26,9 @@ export default function PINVerification({
 
   const handleSubmit = () => {
     if (pin === ADMIN_PIN) {
+      // Guardar la clave con expiración de 24h
+      guardarClaveConExpiracion();
+      
       setPin('');
       setError('');
       setAttempts(0);

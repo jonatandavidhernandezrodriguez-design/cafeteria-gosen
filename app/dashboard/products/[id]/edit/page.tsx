@@ -7,6 +7,7 @@ import { PageContainer, Button } from '@/app/components/ui';
 import { ProductForm } from '@/app/components/ProductForm';
 import { Product } from '@/app/types/menu';
 import { getProduct, updateProduct } from '@/app/lib/store';
+import { obtenerClaveValida } from '@/app/lib/auth-utils';
 import PINVerification from '@/app/components/PINVerification';
 
 interface EditProductPageProps {
@@ -28,7 +29,7 @@ interface FormData {
 export default function EditProductPage({ params }: EditProductPageProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [showPINModal, setShowPINModal] = useState(true);
+  const [showPINModal, setShowPINModal] = useState(false);
   const [isPINVerified, setIsPINVerified] = useState(false);
 
   // Buscar el producto desde store (async)
@@ -36,6 +37,11 @@ export default function EditProductPage({ params }: EditProductPageProps) {
   const [productLoading, setProductLoading] = useState(true);
 
   useEffect(() => {
+    // Verificar si ya hay una clave válida desde localStorage
+    const pinValido = obtenerClaveValida();
+    setIsPINVerified(pinValido);
+    setShowPINModal(!pinValido);
+    
     let mounted = true;
     const load = async () => {
       try {
