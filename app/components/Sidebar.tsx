@@ -29,12 +29,7 @@ export function Sidebar() {
       href: '/dashboard/customers',
     },
     {
-      icon: '💰',
-      label: 'Deudores',
-      href: '/dashboard/debtors',
-    },
-    {
-      icon: '📋',
+      icon: '',
       label: 'Menú',
       href: '/dashboard/menu',
     },

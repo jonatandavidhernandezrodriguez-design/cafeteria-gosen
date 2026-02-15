@@ -18,14 +18,16 @@ interface Sale {
     productName: string;
     quantity: number;
     unitPrice: number;
+    cost: number;
     total: number;
   }>;
   subtotal: number;
   iva: number;
   total: number;
-  paymentMethod: 'cash' | 'nequi' | 'credit';
+  profit?: number;
+  paymentMethod: 'cash' | 'nequi';
   customerName?: string;
-  status: 'pending' | 'completed' | 'cancelled';
+  status: 'completed';
 }
 
 export async function GET() {

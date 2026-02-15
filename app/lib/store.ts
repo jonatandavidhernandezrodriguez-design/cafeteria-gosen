@@ -6,6 +6,7 @@ export interface SaleItem {
   productId: string;
   name: string;
   price: number;
+  cost: number;
   quantity: number;
   subtotal: number;
 }
@@ -17,6 +18,7 @@ export interface Sale {
   subtotal: number;
   iva: number;
   total: number;
+  profit?: number;
   customerName?: string;
   paymentMethod: 'cash' | 'nequi';
   status: 'completed';
@@ -161,8 +163,13 @@ export async function getTodayRevenue(): Promise<number> {
 export async function getTodayProfit(): Promise<number> {
   const sales = await getTodaySales();
   return sales.reduce((sum, sale) => {
+    // Si tenemos profit guardado directamente, usarlo
+    if (sale.profit !== undefined) {
+      return sum + sale.profit;
+    }
+    // Caso de compatibilidad: calcular basado en items
     const saleProfit = sale.items.reduce((itemSum, item) => {
-      const cost = item.price * 0.4;
+      const cost = (item as any).cost ?? item.price * 0.4;
       return itemSum + (item.price - cost) * item.quantity;
     }, 0);
     return sum + saleProfit;

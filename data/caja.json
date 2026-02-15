@@ -1,1 +1,6 @@
-{"isOpen": false, "openingAmount": 0, "openingTime": null, "dailySales": 0}
+{
+  "isOpen": false,
+  "openingAmount": 0,
+  "openingTime": null,
+  "dailySales": 4000
+}

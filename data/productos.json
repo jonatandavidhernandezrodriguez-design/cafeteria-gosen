@@ -1,1 +1,11 @@
-[]
+[
+  {
+    "name": "empanadita pequeñita",
+    "price": 2000,
+    "cost": 0,
+    "isActive": true,
+    "category": "",
+    "stock": 13,
+    "id": "1771197287352"
+  }
+]

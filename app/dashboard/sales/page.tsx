@@ -130,6 +130,7 @@ export default function SalesPage() {
       productId: item.product.id,
       name: item.product.name,
       price: item.product.price,
+      cost: item.product.cost,
       quantity: item.quantity,
       subtotal: item.product.price * item.quantity,
     }));
@@ -153,9 +154,10 @@ export default function SalesPage() {
     // Crear/actualizar cliente
     const customer = await getOrCreateCustomer(customerName, undefined);
 
-    // Calcular subtotal e IVA (19%) y guardar venta
+    // Calcular subtotal, IVA (19%), y ganancia
     const ivaAmount = parseFloat((totalPrice * 0.19).toFixed(2));
     const subtotalAmount = parseFloat((totalPrice - ivaAmount).toFixed(2));
+    const profitAmount = parseFloat(profit.toFixed(2));
 
     // Guardar venta
     const sale = await addSale({
@@ -163,6 +165,7 @@ export default function SalesPage() {
       subtotal: subtotalAmount,
       iva: ivaAmount,
       total: totalPrice,
+      profit: profitAmount,
       customerName: customerName || undefined,
       paymentMethod: paymentMethod,
       status: 'completed',

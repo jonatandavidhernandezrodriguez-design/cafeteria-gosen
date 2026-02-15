@@ -1,1 +1,40 @@
-[]
+[
+  {
+    "items": [
+      {
+        "productId": "1771197287352",
+        "name": "empanadita pequeñita",
+        "price": 2000,
+        "quantity": 1,
+        "subtotal": 2000
+      }
+    ],
+    "subtotal": 1620,
+    "iva": 380,
+    "total": 2000,
+    "customerName": "Donaldo",
+    "paymentMethod": "cash",
+    "status": "completed",
+    "id": "1771197300397",
+    "date": "2026-02-15T23:15:00.397Z"
+  },
+  {
+    "items": [
+      {
+        "productId": "1771197287352",
+        "name": "empanadita pequeñita",
+        "price": 2000,
+        "quantity": 1,
+        "subtotal": 2000
+      }
+    ],
+    "subtotal": 1620,
+    "iva": 380,
+    "total": 2000,
+    "customerName": "donaldo",
+    "paymentMethod": "cash",
+    "status": "completed",
+    "id": "1771197314623",
+    "date": "2026-02-15T23:15:14.623Z"
+  }
+]

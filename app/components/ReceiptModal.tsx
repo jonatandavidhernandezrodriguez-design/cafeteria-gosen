@@ -14,7 +14,7 @@ interface CartItem {
 interface ReceiptModalProps {
   isOpen: boolean;
   total: number;
-  paymentMethod: 'cash' | 'nequi' | 'credit';
+  paymentMethod: 'cash' | 'nequi';
   customerName: string;
   itemCount: number;
   items?: CartItem[];
@@ -35,7 +35,6 @@ export default function ReceiptModal({
   const paymentMethodLabel = {
     cash: { icon: '💵', label: 'EFECTIVO' },
     nequi: { icon: '📱', label: 'NEQUI' },
-    credit: { icon: '💳', label: 'FIADO' },
   }[paymentMethod];
 
   const subtotal = total;
@@ -117,16 +116,7 @@ export default function ReceiptModal({
             </div>
           </div>
 
-          {/* Estado de Crédito */}
-          {paymentMethod === 'credit' && (
-            <div className="bg-amber-50 border-2 border-amber-300 p-3 rounded mb-4 text-center">
-              <p className="text-xs font-bold text-amber-900 mb-1">⏰ DEUDA REGISTRADA</p>
-              <p className="text-xs text-amber-800">
-                Por cobrar a: <span className="font-bold">{customerName}</span>
-              </p>
-              <p className="text-lg font-bold text-amber-600 mt-2">{formatCOP(totalWithTax)}</p>
-            </div>
-          )}
+
 
           {/* Pie de Página */}
           <div className="text-center text-xs text-gray-600 border-t-2 border-dashed border-gray-400 pt-3">
