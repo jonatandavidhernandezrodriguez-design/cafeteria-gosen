@@ -99,10 +99,12 @@ export async function updateProduct(id: string, updates: Partial<Product>): Prom
     const product = await getProduct(id);
     if (!product) {
       console.error(`Product not found: ${id}`);
+      alert(`❌ Producto no encontrado: ${id}`);
       return false;
     }
 
     const updated = { ...product, ...updates } as Product;
+    
     const res = await fetch('/api/productos', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -110,13 +112,16 @@ export async function updateProduct(id: string, updates: Partial<Product>): Prom
     });
     
     if (!res.ok) {
-      const error = await res.text();
-      console.error('API error:', error);
+      const errorText = await res.text();
+      console.error('API error:', res.status, errorText);
+      alert(`❌ Error al actualizar: ${res.status}`);
       return false;
     }
+    
     return true;
   } catch (error) {
     console.error('updateProduct error:', error);
+    alert(`❌ Error: ${error instanceof Error ? error.message : 'Desconocido'}`);
     return false;
   }
 }

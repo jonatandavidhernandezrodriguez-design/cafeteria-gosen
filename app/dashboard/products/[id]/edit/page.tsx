@@ -73,19 +73,29 @@ export default function EditProductPage({ params }: EditProductPageProps) {
     setIsLoading(true);
     
     try {
+      // No enviar imageUrl si es un dataURL muy largo (base64)
+      let imageUrl = formData.imageUrl;
+      if (imageUrl && imageUrl.startsWith('data:image/') && imageUrl.length > 1000) {
+        // Si es una nueva imagen en base64, no la enviamos (es muy grande)
+        imageUrl = product?.imageUrl || ''; // Usar la anterior o vacío
+      }
+
       // Actualizar producto en el store
       const updates = {
         name: formData.name,
         price: Number(formData.price),
         cost: Number(formData.cost),
-        imageUrl: formData.imageUrl,
+        imageUrl: imageUrl,
         isActive: formData.isActive,
         description: formData.description,
         category: formData.category,
       };
 
       const ok = await updateProduct(params.id, updates);
-      if (!ok) throw new Error('No se pudo actualizar producto');
+      if (!ok) {
+        alert('Error al actualizar el producto. Intenta de nuevo.');
+        return;
+      }
 
       // Redirigir a la página de productos
       router.push('/dashboard/products');
