@@ -114,3 +114,45 @@ body {
   animation: pulse 2s ease-in-out infinite;
 }
 
+/* Print Styles for Receipt */
+@media print {
+  body {
+    background: white;
+    color: black;
+  }
+  
+  /* Hide everything except the receipt */
+  body > * {
+    display: none !important;
+  }
+  
+  /* Show only the receipt modal content */
+  .fixed.inset-0 {
+    position: static !important;
+    background: none !important;
+  }
+  
+  .fixed.inset-0 > div {
+    position: static !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+  }
+  
+  .bg-black.bg-opacity-50 {
+    display: none !important;
+  }
+  
+  /* Print optimizations */
+  * {
+    -webkit-print-color-adjust: exact;
+    color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  
+  /* Hide buttons in print */
+  button {
+    display: none !important;
+  }
+}
