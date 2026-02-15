@@ -31,7 +31,9 @@ export async function POST(req: NextRequest) {
     await writeJSON('productos.json', productos);
     return NextResponse.json(newProduct, { status: 201 });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to create product' }, { status: 500 });
+    console.error('POST /api/productos error:', error);
+    const errorMsg = error instanceof Error ? error.message : 'Failed to create product';
+    return NextResponse.json({ error: errorMsg }, { status: 500 });
   }
 }
 

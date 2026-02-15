@@ -16,6 +16,13 @@ export async function readJSON<T>(filename: string): Promise<T> {
 
 export async function writeJSON<T>(filename: string, data: T): Promise<void> {
   try {
+    // Asegurar que el directorio existe
+    try {
+      await fs.mkdir(DATA_DIR, { recursive: true });
+    } catch (mkdirError) {
+      console.error(`Error creating data directory:`, mkdirError);
+    }
+    
     const filePath = path.join(DATA_DIR, filename);
     await fs.writeFile(filePath, JSON.stringify(data, null, 2));
   } catch (error) {
