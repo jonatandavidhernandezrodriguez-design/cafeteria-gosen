@@ -15,11 +15,11 @@ interface Sale {
   date: string;
   items: Array<{
     productId: string;
-    productName: string;
-    quantity: number;
-    unitPrice: number;
+    name: string;
+    price: number;
     cost: number;
-    total: number;
+    quantity: number;
+    subtotal: number;
   }>;
   subtotal: number;
   iva: number;

@@ -246,7 +246,7 @@ export async function getCustomerHistory(customerId: string) {
   const sales = await getSales();
 
   const history = sales
-    .filter((s) => s.customerName === customer.name)
+    .filter((s) => s.customerName?.toLowerCase().trim() === customer.name.toLowerCase().trim())
     .map((s) => ({
       id: s.id,
       date: s.date,
@@ -259,6 +259,7 @@ export async function getCustomerHistory(customerId: string) {
     }))
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
+  console.log(`Customer: ${customer.name}, Sales found: ${history.length}`, history);
   return history;
 }
 
