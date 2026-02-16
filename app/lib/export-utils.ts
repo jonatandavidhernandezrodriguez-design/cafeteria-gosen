@@ -77,7 +77,7 @@ export const exportStatisticsToPDF = (stats: DashboardStats) => {
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(24);
     doc.setFont('Helvetica', 'bold');
-    doc.text('☕ CAFETERÍA GOSEN', pageWidth / 2, 20, { align: 'center' });
+    doc.text('● CAFETERÍA GOSEN', pageWidth / 2, 20, { align: 'center' });
     
     // Subtítulo
     doc.setFontSize(12);
@@ -124,18 +124,18 @@ export const exportStatisticsToPDF = (stats: DashboardStats) => {
     };
 
     // Ingresos Totales - Verde
-    drawStatBox(margin, yPos, 'Ingresos Totales', `$${stats.revenue.toLocaleString('es-CO')}`, [34, 197, 94], '💵');
+    drawStatBox(margin, yPos, 'Ingresos Totales', `$${stats.revenue.toLocaleString('es-CO')}`, [34, 197, 94], '◆');
     
     // Ganancias - Azul
-    drawStatBox(margin + boxWidth + 5, yPos, 'Ganancias Netas', `$${stats.profit.toLocaleString('es-CO')}`, [37, 99, 235], '📈');
+    drawStatBox(margin + boxWidth + 5, yPos, 'Ganancias Netas', `$${stats.profit.toLocaleString('es-CO')}`, [37, 99, 235], '▲');
     
     yPos += boxHeight + 5;
     
     // Items Vendidos - Naranja
-    drawStatBox(margin, yPos, 'Items Vendidos', `${stats.itemsSold} productos`, [245, 127, 23], '📦');
+    drawStatBox(margin, yPos, 'Items Vendidos', `${stats.itemsSold} productos`, [245, 127, 23], '■');
     
     // Transacciones - Púrpura
-    drawStatBox(margin + boxWidth + 5, yPos, 'Transacciones', `${stats.totalTransactions} ventas`, [139, 92, 246], '💳');
+    drawStatBox(margin + boxWidth + 5, yPos, 'Transacciones', `${stats.totalTransactions} ventas`, [139, 92, 246], '○');
     
     yPos += boxHeight + 15;
 
@@ -163,11 +163,11 @@ export const exportStatisticsToPDF = (stats: DashboardStats) => {
     doc.setFontSize(9);
     
     const rows = [
-      ['💰 Ingresos Totales', `$${stats.revenue.toLocaleString('es-CO')}`],
-      ['📈 Ganancias Netas', `$${stats.profit.toLocaleString('es-CO')}`],
-      ['📦 Items Vendidos', `${stats.itemsSold} unidades`],
-      ['💳 Total Transacciones', `${stats.totalTransactions} ventas`],
-      ['⏰ Crédito Pendiente', `$${stats.creditPending.toLocaleString('es-CO')}`],
+      ['◆ Ingresos Totales', `$${stats.revenue.toLocaleString('es-CO')}`],
+      ['▲ Ganancias Netas', `$${stats.profit.toLocaleString('es-CO')}`],
+      ['■ Items Vendidos', `${stats.itemsSold} unidades`],
+      ['○ Total Transacciones', `${stats.totalTransactions} ventas`],
+      ['◇ Crédito Pendiente', `$${stats.creditPending.toLocaleString('es-CO')}`],
     ];
     
     rows.forEach((row, index) => {
@@ -210,18 +210,18 @@ export const exportStatisticsToPDF = (stats: DashboardStats) => {
 export const exportStatisticsToExcel = (stats: DashboardStats) => {
   try {
     const data = [
-      ['', '', '☕ CAFETERÍA GOSEN', ''],
+      ['', '', '● CAFETERÍA GOSEN', ''],
       ['', '', 'REPORTE DE ESTADÍSTICAS DIARIAS', ''],
       [''],
       ['Generado:', stats.date, new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }), ''],
       [''],
       ['ESTADÍSTICAS PRINCIPALES', '', '', ''],
       ['Concepto', 'Valor', 'Estado', ''],
-      ['Ingresos Totales', `$${stats.revenue.toLocaleString('es-CO')}`, '💰', ''],
-      ['Ganancias Netas', `$${stats.profit.toLocaleString('es-CO')}`, '📈', ''],
-      ['Items Vendidos', `${stats.itemsSold} productos`, '📦', ''],
-      ['Total Transacciones', `${stats.totalTransactions} ventas`, '💳', ''],
-      ['Crédito Pendiente', `$${stats.creditPending.toLocaleString('es-CO')}`, '⏰', ''],
+      ['◆ Ingresos Totales', `$${stats.revenue.toLocaleString('es-CO')}`, '', ''],
+      ['▲ Ganancias Netas', `$${stats.profit.toLocaleString('es-CO')}`, '', ''],
+      ['■ Items Vendidos', `${stats.itemsSold} productos`, '', ''],
+      ['○ Total Transacciones', `${stats.totalTransactions} ventas`, '', ''],
+      ['◇ Crédito Pendiente', `$${stats.creditPending.toLocaleString('es-CO')}`, '', ''],
       [''],
       ['Porcentaje de Ganancias', `${((stats.profit / stats.revenue) * 100).toFixed(2)}%`, '', ''],
       ['Ticket Promedio', `$${(stats.revenue / stats.totalTransactions).toLocaleString('es-CO')}`, '', ''],
