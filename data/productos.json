@@ -1,11 +1,22 @@
 [
   {
     "name": "f",
-    "price": 2,
+    "price": 20000,
     "cost": 2,
     "isActive": true,
     "category": "",
-    "stock": 1,
-    "id": "1771213023054"
+    "stock": 0,
+    "id": "1771213023054",
+    "imageUrl": "",
+    "description": ""
+  },
+  {
+    "name": "g",
+    "price": 4,
+    "cost": 4,
+    "isActive": true,
+    "category": "pastries",
+    "stock": 92,
+    "id": "1771213790709"
   }
 ]

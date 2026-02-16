@@ -204,5 +204,47 @@
     "status": "completed",
     "id": "1771213444663",
     "date": "2026-02-16T03:44:04.663Z"
+  },
+  {
+    "items": [
+      {
+        "productId": "1771213023054",
+        "name": "f",
+        "price": 2,
+        "cost": 2,
+        "quantity": 1,
+        "subtotal": 2
+      }
+    ],
+    "subtotal": 1.62,
+    "iva": 0.38,
+    "total": 2,
+    "profit": 0,
+    "customerName": "ramos",
+    "paymentMethod": "cash",
+    "status": "completed",
+    "id": "1771213707163",
+    "date": "2026-02-16T03:48:27.163Z"
+  },
+  {
+    "items": [
+      {
+        "productId": "1771213790709",
+        "name": "g",
+        "price": 4,
+        "cost": 4,
+        "quantity": 7,
+        "subtotal": 28
+      }
+    ],
+    "subtotal": 22.68,
+    "iva": 5.32,
+    "total": 28,
+    "profit": 0,
+    "customerName": "rey",
+    "paymentMethod": "cash",
+    "status": "completed",
+    "id": "1771213801594",
+    "date": "2026-02-16T03:50:01.594Z"
   }
 ]
