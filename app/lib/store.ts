@@ -405,12 +405,14 @@ export async function getOrCreateCustomer(name: string, phone?: string): Promise
     // Guardar en localStorage para persistencia
     if (typeof window !== 'undefined') {
       const allCustomers = await getCustomers();
-      allCustomers.push(customer);
-      localStorage.setItem('cafeteria_clientes', JSON.stringify(allCustomers));
+      if (customer) {
+        allCustomers.push(customer);
+        localStorage.setItem('cafeteria_clientes', JSON.stringify(allCustomers));
+      }
     }
   }
 
-  return customer!;
+  return customer;
 }
 
 export async function updateCustomer(id: string, updates: Partial<Customer>): Promise<boolean> {
