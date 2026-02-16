@@ -1,126 +1,177 @@
-# ☕ Gosen Cafeteria - Plataforma Web Moderna
+# ☕ Gosen Cafeteria - Sistema POS & Admin Dashboard
 
-Una moderna y elegante plataforma web para **Gosen Cafeteria**, construida con **Next.js 15**, **TypeScript** y **Tailwind CSS**. Diseñada con un enfoque minimalista, moderno y warmth perfecto para una cafetería dentro de una iglesia.
+Una plataforma moderna de **Punto de Venta (POS)** y **Panel Administrativo** para **Gosen Cafeteria**, construida con **Next.js 16**, **TypeScript** y **Tailwind CSS v4**.
 
 ## 🎯 Características Principales
 
-- ✨ **Menú Digital Moderno**: Catálogo elegante con filtrado por categoría
-- 🛒 **Sistema de Carrito**: Gestión intuitiva de pedidos con carrito flotante sticky
-- 📋 **Historial de Pedidos**: Seguimiento completo del estado de tus pedidos
-- ⚙️ **Panel Administrativo**: Dashboard completo con estadísticas y gestión de órdenes
-- 📱 **Mobile First**: Totalmente responsive y optimizado para todos los dispositivos
-- 🎨 **Diseño Minimalista**: UI/UX limpio y moderno con mucho espacio en blanco
-- ♿ **Accesible**: Cumple con estándares básicos de accesibilidad (aria-labels, contraste)
+### 👥 Para Clientes
+- ✨ **Menú Digital**: Visualización elegante de productos por categoría
+- 🛒 **Carrito de Compras**: Gestión intuitiva de pedidos
+- 📱 **Diseño Responsive**: Totalmente optimizado para mobile, tablet y desktop
 
-## 🎨 Paleta de Colores Personalizada
+### ⚙️ Para Administrador  
+- 📊 **Dashboard Principal**: Estadísticas en tiempo real de ventas y ganancias
+- 📦 **Gestión de Productos**: 
+  - Crear, editar y desactivar productos
+  - Soporte para imágenes (base64 o URL)
+  - Gestión de categorías y stock
+- 💳 **Sistema de Ventas**: 
+  - Interfaz intuitiva para registrar transacciones
+  - Soporte para múltiples métodos de pago (Efectivo, Nequi)
+  - Cálculo automático de ganancias
+- 👤 **Gestión de Clientes**: 
+  - Historial completo de compras por cliente
+  - Información de contacto
+- 📈 **Reportes y Análisis**: 
+  - Historial de ventas detallado
+  - Exportación a CSV
+  - Análisis de ganancias por período
+- 🖨️ **Facturas de Venta**: 
+  - Modal de recibo elegante
+  - Impresión directa de facturas
+  - Recibos con información completa de la transacción
+- 🔐 **Control de Acceso**: Protección con PIN administrativo (24h localStorage)
 
-**Gosen Cafeteria** utiliza una paleta de colores cálida y amigable:
+## ✅ Estado Actual
 
-- **Beige/Crema**: #F5E6D3 - Color primario, transmite calidez
-- **Marrón Café**: #6B4F3A - Color de acentuación fuerte
-- **Verde Suave**: #7BAE7F - Color de acento secundario
-- **Blanco**: Fondo principal para máxima claridad
-- **Tonos neutros**: Para tipografía y elementos secundarios
+**🟢 COMPLETO Y FUNCIONAL** - Todas las bugs corregidas, listo para producción.
 
-## 📁 Estructura del Proyecto Mejorada
+### Última Sesión de Bugfixes
+Fecha: Hoy
 
-```
-app/
-├── components/
-│   ├── ui/                    # Componentes base reutilizables
-│   │   ├── Button.tsx         # Botones con múltiples variantes
-│   │   ├── Card.tsx           # Tarjetas con estilos consistentes
-│   │   ├── Badge.tsx          # Insignias/etiquetas
-│   │   ├── Container.tsx      # Contenedor con ancho máximo
-│   │   ├── SectionContainer.tsx # Sección con padding y max-width
-│   │   └── index.ts           # Export único para importaciones limpias
-│   ├── Header.tsx             # Navbar moderno y sticky con mobile menu
-│   ├── Footer.tsx             # Footer mejorado con información completa
-│   └── MenuItem.tsx           # Card de producto refactorizado
-├── lib/
-│   └── menu-data.ts           # Datos de ejemplo del menú
-├── types/
-│   └── menu.ts                # Tipos TypeScript
-├── admin/
-│   └── page.tsx               # Dashboard administrativo mejorado
-├── cart/
-│   └── page.tsx               # Página de carrito refactorizada
-├── orders/
-│   └── page.tsx               # Historial de pedidos mejorado
-├── layout.tsx                 # Layout con fuentes Inter y Poppins
-├── page.tsx                   # Página de inicio con hero section
-└── globals.css                # Estilos globales
-```
+Problemas arreglados:
+- ✅ **Impresión de Facturas**: CSS print completamente reescrito
+- ✅ **Imágenes de Productos**: DataURL support agregado en Next.js config
+- ✅ **Exportación a CSV**: Nuevo feature implementado en Reportes
+- ✅ **Edición de Productos**: TypeScript error corregido
+- ✅ **Desactivación de Productos**: Funcionalidad verificada
+- ✅ **Historial de Clientes**: Búsqueda mejorada con case-insensitive matching
 
-## 🎨 Componentes UI Reutilizables
+**Ver detalle completo**: [RESUMEN_SESSION.md](RESUMEN_SESSION.md)
 
-### Button
-```tsx
-import { Button } from '@/components/ui';
+## 🚀 Empezar Rápidamente
 
-<Button variant="primary" size="md" icon="➕">
-  Agregar al Carrito
-</Button>
-```
+### Opción 1: Ejecución Local (Desarrollo)
 
-**Variantes**: `primary` | `secondary` | `outline` | `ghost`  
-**Tamaños**: `sm` | `md` | `lg`
-
-### Card
-```tsx
-import { Card } from '@/components/ui';
-
-<Card variant="elevated" padding="md">
-  Contenido de la tarjeta
-</Card>
-```
-
-**Variantes**: `default` | `elevated` | `outlined`  
-**Padding**: `none` | `sm` | `md` | `lg`
-
-### Badge
-```tsx
-import { Badge } from '@/components/ui';
-
-<Badge variant="success">Completado</Badge>
-```
-
-**Variantes**: `default` | `success` | `warning` | `error` | `info`
-
-### Container & SectionContainer
-```tsx
-import { Container, SectionContainer } from '@/components/ui';
-
-<SectionContainer maxWidth="xl" padding="lg">
-  Contenido centrado
-</SectionContainer>
-```
-
-## 🚀 Instalación y Uso
-
-### Requisitos
-- Node.js 18+
-- npm o yarn
-
-### Instalación
 ```bash
-# Instalar dependencias
+# 1. Clonar repositorio
+git clone git@github.com:jonatandavidhernandezrodriguez-design/cafeteria-gosen.git
+cd cafeteria-gosen
+
+# 2. Instalar dependencias
 npm install
 
-# Iniciar servidor de desarrollo
+# 3. Ejecutar servidor de desarrollo
 npm run dev
+
+# 4. Abrir en navegador
+# http://localhost:3000
 ```
 
-Abre [http://localhost:3000](http://localhost:3000) en tu navegador.
+**Guía detallada**: [LOCAL_SETUP.md](LOCAL_SETUP.md)
 
-## 📦 Stack Tecnológico
+### Opción 2: Desplegar en Vercel (Producción)
 
-- **Next.js 15**: Framework React moderno con App Router
-- **React 18+**: Librería UI
-- **TypeScript**: Tipado estático completo
-- **Tailwind CSS v4**: Utilidades CSS con configuración personalizada
-- **Inter & Poppins**: Tipografías modernas de Google Fonts
-- **ESLint**: Linting de código limpio
+```bash
+# Los cambios en 'main' se despliegan automáticamente
+git push origin main
+```
+
+**Instrucciones completas**: [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)
+
+### Opción 3: Verificación de Funcionalidades
+
+```bash
+# Ver checklist de testing
+cat TESTING_CHECKLIST.md
+```
+
+## 🔐 Pin Administrativo
+
+**PIN por defecto**: `1234`
+
+El PIN es requerido para:
+- Crear nuevos productos
+- Editar productos existentes
+- Eliminar productos
+- Cambiar estado de productos (activo/inactivo)
+
+**Duración**: Se almacena por 24 horas en localStorage automáticamente.
+
+## 📁 Estructura del Proyecto
+
+```
+cafeteria-gosen/
+├── app/
+│   ├── components/
+│   │   ├── ui/                     # Componentes base reutilizables
+│   │   ├── Header.tsx              # Navegación principal
+│   │   ├── Footer.tsx              # Pie de página
+│   │   ├── MenuItem.tsx            # Tarjeta de producto (menú público)
+│   │   ├── ProductCard.tsx         # Tarjeta de producto (admin)
+│   │   ├── ProductForm.tsx         # Formulario crear/editar producto
+│   │   ├── ReceiptModal.tsx        # Modal de factura/recibo
+│   │   └── Sidebar.tsx             # Menú lateral del dashboard
+│   ├── dashboard/
+│   │   ├── page.tsx                # Dashboard principal
+│   │   ├── products/               # Gestión de productos
+│   │   │   ├── page.tsx            # Listado de productos
+│   │   │   ├── new/page.tsx        # Crear producto
+│   │   │   └── [id]/edit/page.tsx  # Editar producto
+│   │   ├── customers/              # Gestión de clientes
+│   │   │   ├── page.tsx            # Listado de clientes
+│   │   │   └── [id]/page.tsx       # Detalle y historial del cliente
+│   │   ├── sales/                  # Crear ventas
+│   │   │   └── page.tsx            # Interfaz de punto de venta
+│   │   ├── reports/                # Reportes y exportación
+│   │   │   └── page.tsx            # Historial de ventas + CSV
+│   │   ├── cashbox/                # Caja registradora
+│   │   └── menu/                   # Menú público
+│   ├── api/
+│   │   ├── productos/route.ts      # CRUD de productos
+│   │   ├── clientes/route.ts       # CRUD de clientes
+│   │   ├── ventas/route.ts         # CRUD de ventas
+│   │   └── caja/route.ts           # Métodos de pago
+│   ├── lib/
+│   │   ├── store.ts                # Lógica de datos (SQL-like queries)
+│   │   ├── storage.ts              # Abstracción JSON/Vercel KV
+│   │   ├── currency.ts             # Formateo de moneda colombiana (COP)
+│   │   ├── auth-utils.ts           # Validación de PIN con expiración
+│   │   └── menu-data.ts            # Datos de ejemplo
+│   ├── types/
+│   │   └── menu.ts                 # Tipos TypeScript compartidos
+│   ├── layout.tsx                  # Layout principal
+│   ├── page.tsx                    # Página home
+│   ├── globals.css                 # Estilos globales + print media queries
+│   └── favicon.ico
+├── data/                           # Almacenamiento local (JSON)
+│   ├── productos.json
+│   ├── clientes.json
+│   ├── ventas.json
+│   └── caja.json
+├── public/                         # Assets públicos
+├── package.json                    # Dependencias e scripts
+├── tsconfig.json                   # Configuración TypeScript
+├── next.config.ts                  # Configuración Next.js (unoptimized images)
+├── tailwind.config.ts              # Tema Tailwind personalizado
+├── README.md                       # Este archivo
+├── LOCAL_SETUP.md                  # Guía de setup local
+├── DEPLOYMENT_GUIDE.md             # Guía de deployment a Vercel
+├── TESTING_CHECKLIST.md            # Checklist de testing
+├── RESUMEN_SESSION.md              # Resumen de sesión de bugfixes
+└── .gitignore
+```
+
+## 📊 Stack Tecnológico
+
+| Componente | Tecnología | Versión |
+|-----------|-----------|---------|
+| Framework | Next.js | 16.1.6 |
+| Runtime | React | 19.0.0 |
+| Lenguaje | TypeScript | 5.x |
+| Estilos | Tailwind CSS | 4.0.x |
+| Build Tool | Turbopack | Integrado |
+| Linting | ESLint | Latest |
 
 ## 🛠️ Scripts Disponibles
 
@@ -128,116 +179,181 @@ Abre [http://localhost:3000](http://localhost:3000) en tu navegador.
 # Desarrollo con hot reload
 npm run dev
 
-# Compilar para producción
+# Compilación para producción
 npm run build
 
-# Iniciar servidor de producción
+# Iniciar servidor de producción (post-build)
 npm start
 
-# Verificar linting
+# Verificar errores de linting
 npm run lint
+
+# Verificar errores de TypeScript
+npm run type-check
 ```
 
-## ✨ Mejoras Implementadas
+## 💾 Almacenamiento de Datos
 
-### Diseño Visual
-- ✅ Paleta de colores personalizada para Gosen Cafeteria
-- ✅ Tipografías modernas (Inter para cuerpo, Poppins como alternativa)
-- ✅ Sombras suaves y consistentes
-- ✅ Bordes redondeados armoniosos
-- ✅ Espaciado coherente en todo el proyecto
+### Modo Local (Desarrollo)
+- Datos guardados en carpeta `/data/` como archivos JSON
+- Perfectos para desarrollo y testing
+- No requiere base de datos externa
 
-### Componentes
-- ✅ Componentes UI reutilizables en `/components/ui`
-- ✅ Button con múltiples variantes y estados
-- ✅ Card con diferentes estilos
-- ✅ Badge para estados y categorías
-- ✅ Container y SectionContainer
+### Modo Vercel KV (Producción)
+- Automáticamente activado cuando `KV_REST_API_URL` está configurado
+- Datos persistentes en Redis
+- No se pierden entre deployments
+- Requiere configuración manual en Vercel dashboard
 
-### Header & Navegación
-- ✅ Header sticky moderno
-- ✅ Logo mejorado con emoji
-- ✅ Menú responsive con hamburger mobile
-- ✅ Enlaces con animaciones suaves
-- ✅ Indicadores de hover con animación
+**El código detecta automáticamente cuál usar** mediante variable de entorno.
 
-### Footer
-- ✅ Footer con información completa
-- ✅ Secciones: Brand, Enlaces, Contacto, Horario
-- ✅ Links de pie de página
-- ✅ Año dinámico
+## 🔌 API Endpoints
 
-### Páginas
-- ✅ Home: Hero section + menú + carrito sticky
-- ✅ Cart: Carrito refactorizado con resumen
-- ✅ Orders: Historial de pedidos mejorado
-- ✅ Admin: Dashboard con estadísticas y tabla de órdenes
+### Productos
+- `GET /api/productos` - Obtener todos los productos
+- `POST /api/productos` - Crear nuevo producto
+- `PUT /api/productos` - Actualizar producto
+- `DELETE /api/productos` - Eliminar producto
 
-### Accesibilidad
-- ✅ Aria-labels en botones y controles
-- ✅ Contraste de colores adecuado
-- ✅ Menú mobile accesible
+### Clientes
+- `GET /api/clientes` - Obtener todos los clientes
+- `POST /api/clientes` - Crear nuevo cliente
+- `DELETE /api/clientes` - Eliminar cliente
+
+### Ventas
+- `GET /api/ventas` - Obtener todas las ventas
+- `POST /api/ventas` - Registrar nueva venta
+- `PUT /api/ventas` - Actualizar venta
+
+### Caja
+- `GET /api/caja` - Información de la caja (métodos de pago)
+
+## 📋 Flujos Principales
+
+### 1. Crear un Producto
+- Ir a: Dashboard → Productos → Nuevo Producto
+- Ingresar: nombre, precio, costo, categoría, descripción
+- (Opcional) Cargar imagen del producto
+- Guardar
+- Aparece en listado de productos
+
+### 2. Realizar una Venta
+- Ir a: Dashboard → Ventas
+- Seleccionar productos y cantidades
+- Ver subtotal actualizado automáticamente
+- Elegir método de pago (Efectivo/Nequi)
+- Ingresar nombre del cliente
+- Click "Cerrar Venta"
+- Se abre modal de recibo automáticamente
+- (Opcional) Imprimir factura
+
+### 3. Ver Reportes
+- Ir a: Dashboard → Reportes
+- Ver tabla de todas las transacciones
+- Click en "Ver Factura" para detalles de venta
+- Click en "📥 Descargar CSV" para exportar datos
+
+### 4. Historial de Cliente
+- Ir a: Dashboard → Clientes
+- Seleccionar cliente de la lista
+- Ver todas sus compras con fecha, método de pago, items y total
+
+## 🖨️ Funcionalidad de Impresión
+
+Las facturas se imprimen con estilos especiales definidos en `@media print`:
+
+- Solo muestra el contenido de la factura
+- Oculta botones y elementos de navegación
+- Preserva colores y bordes para legibilidad
+- Optimizado para recibos de 80mm o impresoras estándar
+
+## 🧪 Testing
+
+Para verificar que todo funciona:
+
+```bash
+# Ver checklist completo
+cat TESTING_CHECKLIST.md
+
+# O ejecutar tests manuales:
+npm run dev
+# Luego visita http://localhost:3000/dashboard/products
+# E intenta crear un producto de prueba
+```
+
+## 🚨 Conocidos Problemas & Soluciones
+
+| Problema | Causa | Solución |
+|---------|-------|---------|
+| Puerto 3000 ocupado | Otro proceso usando puerto | `killall node` o reinicia computadora |
+| Build falla | TypeScript error | Ejecuta `npm run build` localmente para ver detalles |
+| Datos no se guardan | Carpeta `/data/` no existe | Crea carpeta manualmente |
+| Imágenes no muestran | Formato incorrecto | Usa JPEG/PNG o Data URLs válidos |
+| Print sale en blanco | CSS print conflictivo | Já arreglado en esta sesión ✅ |
+
+## 📞 Soporte Rápido
+
+1. Revisa [TESTING_CHECKLIST.md](TESTING_CHECKLIST.md) para guía de testing
+2. Revisa [LOCAL_SETUP.md](LOCAL_SETUP.md) para setup local
+3. Revisa [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) para Vercel
+4. Abre DevTools (F12) en navegador → Pestaña "Console" para errores
 
 ## 📝 Configuración Tailwind
 
-Archivo `tailwind.config.ts` incluye:
-- Colores personalizados (beige, coffee, sage)
-- Fuentes Inter y Poppins
-- Sombras suaves personalizadas
-- Border-radius consistentes
+El proyecto usa Tailwind CSS v4 con tema personalizado:
 
-## 🔄 Próximas Mejoras Recomendadas
+```js
+// tailwind.config.ts
+module.exports = {
+  theme: {
+    colors: {
+      primary: '#6B4F3A',     // Marrón Café
+      accent: '#7BAE7F',      // Verde Suave
+      beige: '#F5E6D3',       // Crema
+      // ... más colores
+    }
+  }
+}
+```
+
+## ✨ Mejoras Futuras (Roadmap)
 
 - [ ] Integración con base de datos (MongoDB/PostgreSQL)
 - [ ] Sistema de autenticación de usuarios
-- [ ] Carrito persistente (localStorage o sesión)
-- [ ] Pasarela de pago (Stripe/PayPal)
-- [ ] Notificaciones en tiempo real con Web Sockets
-- [ ] Subida de imágenes de productos
-- [ ] Sistema de reseñas y calificaciones
-- [ ] Búsqueda y filtros avanzados
-- [ ] Dashboard de usuario con historial
-- [ ] Modo oscuro (opcional)
+- [ ] Múltiples usuarios administradores
+- [ ] Integración de pasarela de pago (Stripe/PayPal)
+- [ ] Notificaciones en tiempo real
+- [ ] Sistema de inventario automático
+- [ ] Reportes más avanzados (gráficos, análisis)
+- [ ] Modo oscuro (dark mode)
+- [ ] Sincronización con WhatsApp para pedidos
+- [ ] App móvil (React Native)
 
-## 🤝 Guía de Desarrollo
+## 🎨 Paleta de Colores
 
-### Crear un nuevo componente UI
-```tsx
-// app/components/ui/NewComponent.tsx
-export function NewComponent() {
-  return <div>Componente</div>;
-}
-
-// Exportar en app/components/ui/index.ts
-export { NewComponent } from './NewComponent';
+```
+Marrón Café (Primary):    #6B4F3A
+Verde Suave (Accent):     #7BAE7F
+Crema/Beige:              #F5E6D3
+Gris Neutral:             #F3F4F6
+Blanco:                   #FFFFFF
 ```
 
-### Agregar una nueva página
-```tsx
-// app/nueva-seccion/page.tsx
-import Header from '@/components/Header';
-import { SectionContainer } from '@/components/ui';
-
-export default function NewPage() {
-  return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      <SectionContainer>
-        {/* Contenido */}
-      </SectionContainer>
-    </div>
-  );
-}
-```
+Todos los colores están configurados en `tailwind.config.ts` y optimizados para accesibilidad.
 
 ## 📄 Licencia
 
-Este proyecto es de código abierto y disponible bajo la licencia MIT.
-
-## 👨‍💻 Créditos
-
-Proyecto creado para **Gosen Cafeteria** con enfoque en diseño moderno, limpio y accesible.
+Proyecto propietario de Gosen Cafeteria. Todos los derechos reservados.
 
 ---
 
-**Desarrollado con ❤️ usando Next.js 15, TypeScript y Tailwind CSS**
+**Desarrollado con ❤️ usando Next.js 16, TypeScript y Tailwind CSS v4**
+
+**Última actualización**: 2024 (Sesión de bugfixes completada)
+
+para más información, revisa los documentos:
+- [LOCAL_SETUP.md](LOCAL_SETUP.md) - Cómo ejecutar localmente
+- [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) - Cómo desplegar en Vercel  
+- [TESTING_CHECKLIST.md](TESTING_CHECKLIST.md) - Cómo testear todas las funcionalidades
+- [RESUMEN_SESSION.md](RESUMEN_SESSION.md) - Detalles de bugfixes realizados
+
