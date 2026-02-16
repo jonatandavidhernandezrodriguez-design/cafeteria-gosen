@@ -86,44 +86,108 @@ export function ProductForm({
       if (file.size > 2 * 1024 * 1024) {
         setErrors(prev => ({
           ...prev,
-          imageUrl: 'Archivo muy grande. Máximo 2MB. Por favor, redimensiona la imagen.',
+          imageUrl: 'Archivo muy grande. Máximo 2MB',
         }));
         return;
       }
       
-      // Leer el archivo como Data URL
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const dataUrl = event.target?.result as string;
-        
-        // Validar que el data URL no sea muy grande (máximo 200KB en base64)
-        if (dataUrl.length > 200 * 1024) {
+      // Para PNG, redimensionar la imagen
+      if (file.type === 'image/png' || file.type === 'image/jpeg') {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const img = document.createElement('img') as HTMLImageElement;
+          img.onload = () => {
+            // Crear canvas y redimensionar
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+            
+            // Limitar a 300px de ancho máximo
+            if (width > 300) {
+              height = Math.round((height * 300) / width);
+              width = 300;
+            }
+            
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+              ctx.drawImage(img, 0, 0, width, height);
+              
+              // Convertir a data URL con compresión
+              const quality = file.type === 'image/png' ? 0.8 : 0.85;
+              const dataUrl = canvas.toDataURL('image/jpeg', quality);
+              
+              // Validar tamaño del data URL (máximo 50KB)
+              if (dataUrl.length > 50 * 1024) {
+                setErrors(prev => ({
+                  ...prev,
+                  imageUrl: 'Imagen muy pesada. Se comprimió pero sigue siendo grande. Usa una imagen más pequeña o de menor resolución.',
+                }));
+                return;
+              }
+              
+              setPreview(dataUrl);
+              setFormData(prev => ({
+                ...prev,
+                imageUrl: dataUrl,
+              }));
+              setErrors(prev => ({
+                ...prev,
+                imageUrl: undefined,
+              }));
+            }
+          };
+          img.onerror = () => {
+            setErrors(prev => ({
+              ...prev,
+              imageUrl: 'Error al procesar la imagen.',
+            }));
+          };
+          img.src = event.target?.result as string;
+        };
+        reader.onerror = () => {
           setErrors(prev => ({
             ...prev,
-            imageUrl: 'Imagen muy pesada después de codificación. Usa una imagen más pequeña (ancho máximo 400px).',
+            imageUrl: 'Error al leer la imagen. Intenta otra.',
           }));
-          return;
-        }
+        };
+        reader.readAsDataURL(file);
+      } else {
+        // Para SVG y WebP, procesar directamente
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const dataUrl = event.target?.result as string;
+          
+          // Validar que el data URL no sea muy grande (máximo 50KB en base64)
+          if (dataUrl.length > 50 * 1024) {
+            setErrors(prev => ({
+              ...prev,
+              imageUrl: 'Imagen muy pesada. Usa una imagen más pequeña.',
+            }));
+            return;
+          }
+          
+          setPreview(dataUrl);
+          setFormData(prev => ({
+            ...prev,
+            imageUrl: dataUrl,
+          }));
+          setErrors(prev => ({
+            ...prev,
+            imageUrl: undefined,
+          }));
+        };
         
-        setPreview(dataUrl);
-        setFormData(prev => ({
-          ...prev,
-          imageUrl: dataUrl,
-        }));
-        setErrors(prev => ({
-          ...prev,
-          imageUrl: undefined,
-        }));
-      };
-      
-      reader.onerror = () => {
-        setErrors(prev => ({
-          ...prev,
-          imageUrl: 'Error al leer la imagen. Intenta otra.',
-        }));
-      };
-      
-      reader.readAsDataURL(file);
+        reader.onerror = () => {
+          setErrors(prev => ({
+            ...prev,
+            imageUrl: 'Error al leer la imagen.',
+          }));
+        };
+        
+        reader.readAsDataURL(file);
+      }
     }
   };
 

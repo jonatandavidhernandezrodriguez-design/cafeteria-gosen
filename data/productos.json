@@ -1,15 +1,5 @@
 ﻿[
   {
-    "name": "empanadita pequeñita",
-    "price": 2000,
-    "cost": 0,
-    "isActive": true,
-    "category": "coffee",
-    "stock": 19,
-    "id": "1771204719218",
-    "imageUrl": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23FFE4B5'/%3E%3Cpath d='M30 50 Q50 30 70 50 L70 80 Q50 90 30 80 Z' fill='%23DEB887' stroke='%23D2691E' stroke-width='2'/%3E%3C/svg%3E"
-  },
-  {
     "name": "Café Americano",
     "price": 3500,
     "cost": 1500,
@@ -30,5 +20,16 @@
     "id": "capuchino",
     "imageUrl": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23F5DEB3'/%3E%3Ccircle cx='50' cy='40' r='25' fill='%238B4513'/%3E%3C/svg%3E",
     "description": "Espresso con leche"
+  },
+  {
+    "name": "Croissant",
+    "price": 3000,
+    "cost": 1000,
+    "isActive": true,
+    "category": "Panadería",
+    "stock": 25,
+    "id": "croissant",
+    "imageUrl": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23FFE4B5'/%3E%3Cpath d='M30 70 Q50 30 70 70' fill='%23DEB887' stroke='%23D2691E' stroke-width='2'/%3E%3C/svg%3E",
+    "description": "Croissant crujiente"
   }
 ]
