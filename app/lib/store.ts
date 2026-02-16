@@ -260,6 +260,40 @@ export async function addSale(sale: Omit<Sale, 'id' | 'date'>): Promise<Sale> {
   }
 }
 
+export async function deleteSale(saleId: string): Promise<boolean> {
+  try {
+    try {
+      // Intentar a través de API
+      const res = await fetch('/api/ventas', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: saleId }),
+      });
+      
+      if (!res.ok) {
+        throw new Error(`API error: ${res.status}`);
+      }
+      
+      return true;
+    } catch (apiError) {
+      // Si la API falla, eliminar de localStorage
+      console.warn('API unavailable, deleting from localStorage:', apiError);
+      
+      if (typeof window !== 'undefined') {
+        const cached = localStorage.getItem('cafeteria_ventas');
+        const sales: Sale[] = cached ? JSON.parse(cached) : [];
+        const filtered = sales.filter(s => s.id !== saleId);
+        localStorage.setItem('cafeteria_ventas', JSON.stringify(filtered));
+      }
+      
+      return true; // Considerar éxito aunque sea solo local
+    }
+  } catch (error) {
+    console.error('deleteSale error:', error);
+    return false;
+  }
+}
+
 export async function getSales(): Promise<Sale[]> {
   try {
     // Paso 1: Cargar de localStorage (fuente primaria)
