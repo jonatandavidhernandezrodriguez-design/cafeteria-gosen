@@ -51,8 +51,26 @@ export interface Customer {
 // ================
 export async function getProducts(): Promise<Product[]> {
   try {
+    // Paso 1: Cargar de localStorage (fuente primaria)
+    if (typeof window !== 'undefined') {
+      const cached = localStorage.getItem('cafeteria_productos');
+      if (cached) {
+        return JSON.parse(cached);
+      }
+    }
+    
+    // Paso 2: Si no hay en localStorage, intentar fetch a API
     const res = await fetch('/api/productos', { cache: 'no-cache' });
-    return res.json();
+    if (res.ok) {
+      const data = await res.json();
+      // Guardar en localStorage si vinieron de la API
+      if (typeof window !== 'undefined' && Array.isArray(data)) {
+        localStorage.setItem('cafeteria_productos', JSON.stringify(data));
+      }
+      return data;
+    }
+    
+    return [];
   } catch (error) {
     console.error('Error fetching products:', error);
     return [];
