@@ -309,5 +309,26 @@
     "status": "completed",
     "id": "1771214378615",
     "date": "2026-02-16T03:59:38.615Z"
+  },
+  {
+    "items": [
+      {
+        "productId": "1771213790709",
+        "name": "g",
+        "price": 4,
+        "cost": 4,
+        "quantity": 4,
+        "subtotal": 16
+      }
+    ],
+    "subtotal": 12.96,
+    "iva": 3.04,
+    "total": 16,
+    "profit": 0,
+    "customerName": "pp",
+    "paymentMethod": "cash",
+    "status": "completed",
+    "id": "1771214588266",
+    "date": "2026-02-16T04:03:08.266Z"
   }
 ]
