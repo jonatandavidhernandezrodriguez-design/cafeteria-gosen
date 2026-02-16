@@ -15,28 +15,34 @@ export function useProducts() {
   useEffect(() => {
     const loadProducts = async () => {
       try {
-        // Paso 1: Cargar de localStorage (fuente primaria)
+        // Paso 1: Cargar de localStorage (fuente primaria) - SIEMPRE
+        let cachedProducts: Product[] = [];
         if (typeof window !== 'undefined') {
           const cached = localStorage.getItem('cafeteria_productos');
           if (cached) {
-            const parsed = JSON.parse(cached);
-            setProducts(parsed);
+            cachedProducts = JSON.parse(cached);
+            setProducts(cachedProducts);
           }
         }
 
-        // Paso 2: Sincronizar con API en background (sin esperar, sin bloquear)
+        // Paso 2: Intentar sincronizar con API en background
+        // PERO solo usar la respuesta si tiene datos y es válida
         try {
           const res = await fetch('/api/productos', { cache: 'no-cache' });
           if (res.ok) {
             const data = await res.json();
-            setProducts(data);
-            // Guardar en localStorage
-            if (typeof window !== 'undefined') {
-              localStorage.setItem('cafeteria_productos', JSON.stringify(data));
+            // Solo actualizar si la API retorna un array con datos
+            if (Array.isArray(data) && data.length > 0) {
+              setProducts(data);
+              // Guardar en localStorage
+              if (typeof window !== 'undefined') {
+                localStorage.setItem('cafeteria_productos', JSON.stringify(data));
+              }
             }
+            // Si API retorna vacío, mantener los datos de localStorage
           }
         } catch (apiErr) {
-          console.warn('API sync failed, using localStorage:', apiErr);
+          console.warn('API sync failed, keeping localStorage data:', apiErr);
           // No pasa nada, usamos lo que hay en localStorage
         }
       } finally {
