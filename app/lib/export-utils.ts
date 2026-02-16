@@ -63,35 +63,142 @@ export const exportToExcel = (data: any[], filename: string) => {
 export const exportStatisticsToPDF = (stats: DashboardStats) => {
   try {
     const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const margin = 15;
+    const contentWidth = pageWidth - (margin * 2);
 
-    doc.setFontSize(18);
-    doc.text('Estadísticas del Día - Cafetería Gosen', 14, 15);
-
-    doc.setFontSize(10);
-    doc.setTextColor(128);
-    doc.text(`Generado: ${stats.date}`, 14, 25);
-
-    // Estadísticas principales
-    const startY = 35;
-    doc.setFontSize(11);
-    doc.setTextColor(0);
+    // ========== ENCABEZADO ==========
+    // Fondo azul
+    doc.setFillColor(37, 99, 235);
+    doc.rect(0, 0, pageWidth, 50, 'F');
     
-    const statsText = [
-      ['Ingresos Totales:', `$${stats.revenue.toLocaleString('es-CO')}`],
-      ['Ganancias:', `$${stats.profit.toLocaleString('es-CO')}`],
-      ['Items Vendidos:', `${stats.itemsSold} unidades`],
-      ['Crédito Pendiente:', `$${stats.creditPending.toLocaleString('es-CO')}`],
-      ['Total Transacciones:', `${stats.totalTransactions}`],
-    ];
+    // Título
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(24);
+    doc.setFont('Helvetica', 'bold');
+    doc.text('☕ CAFETERÍA GOSEN', pageWidth / 2, 20, { align: 'center' });
+    
+    // Subtítulo
+    doc.setFontSize(12);
+    doc.setFont('Helvetica', 'normal');
+    doc.text('Reporte de Estadísticas Diarias', pageWidth / 2, 35, { align: 'center' });
 
-    let yOffset = startY;
-    statsText.forEach((row) => {
-      doc.setFont('Helvetica', 'bold');
-      doc.text(row[0], 14, yOffset);
+    // ========== INFORMACIÓN DEL REPORTE ==========
+    doc.setTextColor(100, 100, 100);
+    doc.setFontSize(9);
+    const now = new Date();
+    const hora = now.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+    doc.text(`Generado: ${stats.date} a las ${hora}`, margin, 60);
+
+    // ========== CAJAS DE ESTADÍSTICAS ==========
+    let yPos = 70;
+    const boxHeight = 28;
+    const boxWidth = (contentWidth - 5) / 2;
+
+    // Función helper para dibujar cajas
+    const drawStatBox = (x: number, y: number, label: string, value: string, bgColor: [number, number, number], icon: string) => {
+      // Fondo de la caja
+      doc.setFillColor(bgColor[0], bgColor[1], bgColor[2]);
+      doc.rect(x, y, boxWidth, boxHeight, 'F');
+      
+      // Bordes
+      doc.setDrawColor(bgColor[0] - 20, bgColor[1] - 20, bgColor[2] - 20);
+      doc.setLineWidth(0.5);
+      doc.rect(x, y, boxWidth, boxHeight);
+      
+      // Icono
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(16);
+      doc.text(icon, x + 5, y + 12);
+      
+      // Label (blanco)
+      doc.setFontSize(9);
       doc.setFont('Helvetica', 'normal');
-      doc.text(row[1], 100, yOffset);
-      yOffset += 8;
+      doc.text(label, x + 10, y + 10);
+      
+      // Valor (más grande y bold)
+      doc.setFontSize(13);
+      doc.setFont('Helvetica', 'bold');
+      doc.text(value, x + 10, y + 20);
+    };
+
+    // Ingresos Totales - Verde
+    drawStatBox(margin, yPos, 'Ingresos Totales', `$${stats.revenue.toLocaleString('es-CO')}`, [34, 197, 94], '💵');
+    
+    // Ganancias - Azul
+    drawStatBox(margin + boxWidth + 5, yPos, 'Ganancias Netas', `$${stats.profit.toLocaleString('es-CO')}`, [37, 99, 235], '📈');
+    
+    yPos += boxHeight + 5;
+    
+    // Items Vendidos - Naranja
+    drawStatBox(margin, yPos, 'Items Vendidos', `${stats.itemsSold} productos`, [245, 127, 23], '📦');
+    
+    // Transacciones - Púrpura
+    drawStatBox(margin + boxWidth + 5, yPos, 'Transacciones', `${stats.totalTransactions} ventas`, [139, 92, 246], '💳');
+    
+    yPos += boxHeight + 15;
+
+    // ========== TABLA DETALLADA ==========
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(11);
+    doc.setFont('Helvetica', 'bold');
+    doc.text('Resumen Detallado', margin, yPos);
+    
+    yPos += 8;
+    
+    // Encabezado de tabla
+    doc.setFillColor(220, 220, 220);
+    doc.rect(margin, yPos - 4, contentWidth, 6, 'F');
+    doc.setFontSize(9);
+    doc.setFont('Helvetica', 'bold');
+    doc.setTextColor(0, 0, 0);
+    doc.text('Concepto', margin + 2, yPos);
+    doc.text('Valor', margin + contentWidth - 30, yPos);
+    
+    yPos += 6;
+    
+    // Filas de datos
+    doc.setFont('Helvetica', 'normal');
+    doc.setFontSize(9);
+    
+    const rows = [
+      ['💰 Ingresos Totales', `$${stats.revenue.toLocaleString('es-CO')}`],
+      ['📈 Ganancias Netas', `$${stats.profit.toLocaleString('es-CO')}`],
+      ['📦 Items Vendidos', `${stats.itemsSold} unidades`],
+      ['💳 Total Transacciones', `${stats.totalTransactions} ventas`],
+      ['⏰ Crédito Pendiente', `$${stats.creditPending.toLocaleString('es-CO')}`],
+    ];
+    
+    rows.forEach((row, index) => {
+      if (index % 2 === 0) {
+        doc.setFillColor(245, 245, 245);
+        doc.rect(margin, yPos - 3, contentWidth, 5, 'F');
+      }
+      
+      doc.setTextColor(0, 0, 0);
+      doc.text(row[0], margin + 2, yPos);
+      doc.text(row[1], margin + contentWidth - 30, yPos, { align: 'right' });
+      yPos += 6;
     });
+
+    // ========== LÍNEA SEPARADORA ==========
+    yPos += 3;
+    doc.setDrawColor(200, 200, 200);
+    doc.setLineWidth(0.5);
+    doc.line(margin, yPos, margin + contentWidth, yPos);
+
+    // ========== PIE DEL DOCUMENTO ==========
+    yPos = pageHeight - 15;
+    doc.setFontSize(8);
+    doc.setTextColor(150, 150, 150);
+    doc.setFont('Helvetica', 'normal');
+    doc.text('Este reporte fue generado automáticamente por Cafetería Gosen', pageWidth / 2, yPos, { align: 'center' });
+    doc.text(`Para consultas o reportes, contacta al administrador`, pageWidth / 2, yPos + 5, { align: 'center' });
+
+    // ========== NÚMERO DE PÁGINA ==========
+    doc.setFontSize(7);
+    doc.text(`Página 1 de 1`, pageWidth / 2, pageHeight - 5, { align: 'center' });
 
     doc.save('estadisticas_dia.pdf');
   } catch (error) {
@@ -101,24 +208,51 @@ export const exportStatisticsToPDF = (stats: DashboardStats) => {
 };
 
 export const exportStatisticsToExcel = (stats: DashboardStats) => {
-  const data = [
-    ['ESTADÍSTICAS DEL DÍA - CAFETERÍA GOSEN'],
-    [''],
-    ['Generado:', stats.date],
-    [''],
-    ['Ingresos Totales', stats.revenue],
-    ['Ganancias', stats.profit],
-    ['Items Vendidos', stats.itemsSold],
-    ['Crédito Pendiente', stats.creditPending],
-    ['Total Transacciones', stats.totalTransactions],
-  ];
+  try {
+    const data = [
+      ['', '', '☕ CAFETERÍA GOSEN', ''],
+      ['', '', 'REPORTE DE ESTADÍSTICAS DIARIAS', ''],
+      [''],
+      ['Generado:', stats.date, new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }), ''],
+      [''],
+      ['ESTADÍSTICAS PRINCIPALES', '', '', ''],
+      ['Concepto', 'Valor', 'Estado', ''],
+      ['Ingresos Totales', `$${stats.revenue.toLocaleString('es-CO')}`, '💰', ''],
+      ['Ganancias Netas', `$${stats.profit.toLocaleString('es-CO')}`, '📈', ''],
+      ['Items Vendidos', `${stats.itemsSold} productos`, '📦', ''],
+      ['Total Transacciones', `${stats.totalTransactions} ventas`, '💳', ''],
+      ['Crédito Pendiente', `$${stats.creditPending.toLocaleString('es-CO')}`, '⏰', ''],
+      [''],
+      ['Porcentaje de Ganancias', `${((stats.profit / stats.revenue) * 100).toFixed(2)}%`, '', ''],
+      ['Ticket Promedio', `$${(stats.revenue / stats.totalTransactions).toLocaleString('es-CO')}`, '', ''],
+      ['Productos por Transacción', `${(stats.itemsSold / stats.totalTransactions).toFixed(2)} items`, '', ''],
+    ];
 
-  const ws = XLSX.utils.aoa_to_sheet(data);
-  ws['!cols'] = [{ wch: 25 }, { wch: 25 }];
+    const ws = XLSX.utils.aoa_to_sheet(data);
+    
+    // Estilos - asignar anchos de columna
+    ws['!cols'] = [
+      { wch: 25 },
+      { wch: 20 },
+      { wch: 20 },
+      { wch: 10 },
+    ];
 
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'Estadísticas');
-  XLSX.writeFile(wb, 'estadisticas_dia.xlsx');
+    // Aplicar formato a las celdas importantes
+    const boldCells = ['A1', 'A2', 'A6', 'A7'];
+    boldCells.forEach((cell) => {
+      if (ws[cell]) {
+        ws[cell].s = { font: { bold: true, size: 12 } };
+      }
+    });
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Estadísticas');
+    XLSX.writeFile(wb, `estadisticas_${stats.date}.xlsx`);
+  } catch (error) {
+    console.error('Error exporting stats to Excel:', error);
+    throw error;
+  }
 };
 
 /* ========== DEUDORES ========== */
