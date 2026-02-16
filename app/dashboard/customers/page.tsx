@@ -3,10 +3,19 @@
 import React, { useState, useEffect } from 'react';
 import { PageContainer, Button, Card } from '@/app/components/ui';
 import Link from 'next/link';
-import { getCustomers, getLastCustomerSale } from '@/app/lib/store';
+import { getCustomers, getSales } from '@/app/lib/store';
 import { formatCOP } from '@/app/lib/currency';
 import { obtenerClaveValida } from '@/app/lib/auth-utils';
 import PINVerification from '@/app/components/PINVerification';
+
+interface Sale {
+  id: string;
+  date: string;
+  total: number;
+  paymentMethod: 'cash' | 'nequi';
+  customerName: string;
+  status: string;
+}
 
 interface Customer {
   id: string;
@@ -18,8 +27,14 @@ interface Customer {
   lastPurchase?: string;
 }
 
+interface CustomerWithLastSale extends Customer {
+  lastSaleAmount?: number;
+  lastSalePayment?: string;
+  lastSaleDate?: string;
+}
+
 export default function CustomersPage() {
-  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [customers, setCustomers] = useState<CustomerWithLastSale[]>([]);
   const [showPINModal, setShowPINModal] = useState(false);
   const [isPINVerified, setIsPINVerified] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -37,7 +52,32 @@ export default function CustomersPage() {
     const loadData = async () => {
       try {
         const customersData = await getCustomers();
-        setCustomers(customersData);
+        const salesData = await getSales();
+
+        // Enriquecer clientes con última venta
+        const enrichedCustomers = customersData.map(customer => {
+          const customerSales = salesData.filter(
+            sale => sale.customerName && sale.customerName.toLowerCase() === customer.name.toLowerCase()
+          ) as Sale[];
+          
+          if (customerSales.length > 0) {
+            // Encontrar la venta más reciente
+            const lastSale = customerSales.sort((a, b) => 
+              new Date(b.date).getTime() - new Date(a.date).getTime()
+            )[0];
+            
+            return {
+              ...customer,
+              lastSaleAmount: lastSale.total,
+              lastSalePayment: lastSale.paymentMethod === 'cash' ? 'Efectivo' : 'Nequi',
+              lastSaleDate: lastSale.date,
+            };
+          }
+          
+          return customer;
+        });
+
+        setCustomers(enrichedCustomers);
       } catch (error) {
         console.error('Error loading data:', error);
       } finally {
@@ -87,10 +127,13 @@ export default function CustomersPage() {
                     Última Compra
                   </th>
                   <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
-                    Total
+                    Monto
                   </th>
                   <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
-                    Miembro desde
+                    Tipo Pago
+                  </th>
+                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
+                    Total Compras
                   </th>
                   <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
                     Acciones
@@ -107,15 +150,24 @@ export default function CustomersPage() {
                       <p className="font-medium text-gray-900">{customer.name}</p>
                     </td>
                     <td className="py-3 px-4">
-                      <p className="text-sm text-gray-600">{customer.lastPurchase || '-'}</p>
-                    </td>
-                    <td className="py-3 px-4">
-                      <p className="font-semibold text-gray-900">{formatCOP(customer.totalPurchases)}</p>
-                    </td>
-                    <td className="py-3 px-4">
-                      <p className="text-gray-600 text-sm">
-                        {customer.lastPurchase ? new Date(customer.lastPurchase).toLocaleDateString('es-CO') : '-'}
+                      <p className="text-sm text-gray-600">
+                        {customer.lastSaleDate 
+                          ? new Date(customer.lastSaleDate).toLocaleDateString('es-CO') 
+                          : '-'}
                       </p>
+                    </td>
+                    <td className="py-3 px-4">
+                      <p className="font-semibold text-gray-900">
+                        {customer.lastSaleAmount ? formatCOP(customer.lastSaleAmount) : '-'}
+                      </p>
+                    </td>
+                    <td className="py-3 px-4">
+                      <p className="text-sm text-gray-600">
+                        {customer.lastSalePayment || '-'}
+                      </p>
+                    </td>
+                    <td className="py-3 px-4">
+                      <p className="font-semibold text-blue-600">{formatCOP(customer.totalPurchases)}</p>
                     </td>
                     <td className="py-3 px-4">
                       <Link href={`/dashboard/customers/${customer.id}`}>
