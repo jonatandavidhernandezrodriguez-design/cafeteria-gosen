@@ -20,6 +20,7 @@ interface FormData {
   name: string;
   price: string;
   cost: string;
+  stock: string;
   imageUrl: string;
   isActive: boolean;
   description: string;
@@ -90,6 +91,7 @@ export default function EditProductPage({ params: paramPromise }: EditProductPag
         name: formData.name,
         price: Number(formData.price) || 0,
         cost: Number(formData.cost) || 0,
+        stock: Number(formData.stock) || 0,
         imageUrl: imageUrl || product?.imageUrl || '',
         isActive: formData.isActive || true,
         description: formData.description || '',
