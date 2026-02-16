@@ -48,7 +48,9 @@ export default function CustomersPage() {
     } else {
       setShowPINModal(true);
     }
-    
+  }, []);
+
+  useEffect(() => {
     const loadData = async () => {
       try {
         const customersData = await getCustomers();
@@ -86,6 +88,25 @@ export default function CustomersPage() {
     };
     
     loadData();
+    
+    // Recargar cada 2 segundos
+    const interval = setInterval(loadData, 2000);
+    
+    // Listener para cambios en localStorage
+    const handleStorageChange = () => {
+      loadData();
+    };
+    
+    if (typeof window !== 'undefined') {
+      window.addEventListener('storage', handleStorageChange);
+    }
+    
+    return () => {
+      clearInterval(interval);
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('storage', handleStorageChange);
+      }
+    };
   }, []);
 
   const handleInitialPINSuccess = () => {

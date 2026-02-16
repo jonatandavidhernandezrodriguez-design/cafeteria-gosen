@@ -334,8 +334,26 @@ export async function getTodayItemsSold(): Promise<number> {
 // ================
 export async function getCustomers(): Promise<Customer[]> {
   try {
+    // Paso 1: Cargar de localStorage (fuente primaria)
+    if (typeof window !== 'undefined') {
+      const cached = localStorage.getItem('cafeteria_clientes');
+      if (cached) {
+        return JSON.parse(cached);
+      }
+    }
+    
+    // Paso 2: Si no hay en localStorage, intentar fetch a API
     const res = await fetch('/api/clientes', { cache: 'no-cache' });
-    return res.json();
+    if (res.ok) {
+      const data = await res.json();
+      // Guardar en localStorage si vinieron de la API
+      if (typeof window !== 'undefined' && Array.isArray(data)) {
+        localStorage.setItem('cafeteria_clientes', JSON.stringify(data));
+      }
+      return data;
+    }
+    
+    return [];
   } catch (error) {
     console.error('Error fetching customers:', error);
     return [];
@@ -352,17 +370,44 @@ export async function getOrCreateCustomer(name: string, phone?: string): Promise
   let customer = customers.find((c) => c.name.toLowerCase() === name.toLowerCase());
 
   if (!customer) {
-    customer = await fetch('/api/clientes', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name,
-        phone,
-        email: undefined,
-        totalPurchases: 0,
-        totalDebt: 0,
-      }),
-    }).then((res) => res.json()) as Customer;
+    // Crear nuevo cliente con ID único
+    customer = {
+      id: Date.now().toString(),
+      name,
+      phone,
+      email: undefined,
+      totalPurchases: 0,
+      totalDebt: 0,
+    };
+    
+    try {
+      // Intentar crear en API
+      const res = await fetch('/api/clientes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(customer),
+      });
+      
+      if (!res.ok) {
+        throw new Error(`API error: ${res.status}`);
+      }
+      
+      const apiCustomer = await res.json();
+      // Usar la respuesta de la API si es válida
+      if (apiCustomer && apiCustomer.id) {
+        customer = apiCustomer;
+      }
+    } catch (apiError) {
+      // Si la API falla, el cliente ya está listo para guardar localmente
+      console.warn('API unavailable for creating customer, will save locally:', apiError);
+    }
+    
+    // Guardar en localStorage para persistencia
+    if (typeof window !== 'undefined') {
+      const allCustomers = await getCustomers();
+      allCustomers.push(customer);
+      localStorage.setItem('cafeteria_clientes', JSON.stringify(allCustomers));
+    }
   }
 
   return customer!;
