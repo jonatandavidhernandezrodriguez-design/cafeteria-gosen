@@ -72,29 +72,57 @@ export function ProductForm({
     const file = e.target.files?.[0];
     
     if (file) {
-      // Validar tamaño (máximo 5MB)
-      if (file.size > 5 * 1024 * 1024) {
+      // Validar tipo de archivo
+      const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml'];
+      if (!validTypes.includes(file.type)) {
         setErrors(prev => ({
           ...prev,
-          imageUrl: 'La imagen debe ser menor a 5MB',
+          imageUrl: 'Formato no soportado. Usa JPEG, PNG, WebP o SVG',
         }));
         return;
       }
       
-      // Leer el archivo como Data URL para preview
+      // Validar tamaño físico (máximo 2MB)
+      if (file.size > 2 * 1024 * 1024) {
+        setErrors(prev => ({
+          ...prev,
+          imageUrl: 'Archivo muy grande. Máximo 2MB. Por favor, redimensiona la imagen.',
+        }));
+        return;
+      }
+      
+      // Leer el archivo como Data URL
       const reader = new FileReader();
       reader.onload = (event) => {
         const dataUrl = event.target?.result as string;
+        
+        // Validar que el data URL no sea muy grande (máximo 200KB en base64)
+        if (dataUrl.length > 200 * 1024) {
+          setErrors(prev => ({
+            ...prev,
+            imageUrl: 'Imagen muy pesada después de codificación. Usa una imagen más pequeña (ancho máximo 400px).',
+          }));
+          return;
+        }
+        
         setPreview(dataUrl);
         setFormData(prev => ({
           ...prev,
-          imageUrl: dataUrl, // Guardar la dataURL completa
+          imageUrl: dataUrl,
         }));
         setErrors(prev => ({
           ...prev,
           imageUrl: undefined,
         }));
       };
+      
+      reader.onerror = () => {
+        setErrors(prev => ({
+          ...prev,
+          imageUrl: 'Error al leer la imagen. Intenta otra.',
+        }));
+      };
+      
       reader.readAsDataURL(file);
     }
   };
