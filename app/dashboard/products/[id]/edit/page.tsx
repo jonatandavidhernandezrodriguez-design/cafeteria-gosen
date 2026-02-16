@@ -90,7 +90,7 @@ export default function EditProductPage({ params: paramPromise }: EditProductPag
         name: formData.name,
         price: Number(formData.price) || 0,
         cost: Number(formData.cost) || 0,
-        imageUrl: imageUrl || '',
+        imageUrl: imageUrl || product?.imageUrl || '',
         isActive: formData.isActive || true,
         description: formData.description || '',
         category: formData.category || '',
