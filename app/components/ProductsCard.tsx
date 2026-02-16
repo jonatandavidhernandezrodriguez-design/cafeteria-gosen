@@ -3,6 +3,7 @@
 import { Button } from '@/app/components/ui';
 import { Product } from '@/app/lib/store';
 import { formatCOP } from '@/app/lib/currency';
+import Image from 'next/image';
 
 interface ProductCardProps {
   product: Product;
@@ -16,10 +17,20 @@ export function ProductCard({ product, onAddSale }: ProductCardProps) {
   return (
     <div className="bg-white rounded-xl shadow-soft border border-gray-200 overflow-hidden hover:shadow-soft-lg transition-shadow h-full flex flex-col">
       {/* Imagen */}
-      <div className="relative w-full h-48 bg-gradient-to-br from-blue-100 to-blue-50 overflow-hidden flex items-center justify-center">
-        <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-primary-100 to-accent-100">
-          <span className="text-5xl">☕</span>
-        </div>
+      <div className="relative w-full h-48 bg-gray-100 overflow-hidden flex items-center justify-center border-b border-gray-200">
+        {product.imageUrl ? (
+          <Image
+            src={product.imageUrl}
+            alt={product.name}
+            fill
+            className="object-cover"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300 text-gray-500 text-sm font-semibold">
+            <span>Sin imagen</span>
+          </div>
+        )}
       </div>
 
       {/* Contenido */}

@@ -239,7 +239,7 @@ export default function SalesPage() {
                 >
                   <div className="flex gap-3">
                     {/* Imagen */}
-                    <div className="relative w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100">
+                    <div className="relative w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100 border border-gray-300">
                       {product.imageUrl ? (
                         <Image
                           src={product.imageUrl}
@@ -248,8 +248,8 @@ export default function SalesPage() {
                           className="object-cover"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary-100 to-accent-100">
-                          <span className="text-2xl">📦</span>
+                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300 text-gray-500 text-xs font-semibold">
+                          <span>Sin imagen</span>
                         </div>
                       )}
                     </div>

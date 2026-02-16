@@ -43,8 +43,8 @@ export function ProductCard({ product, onEdit, onDelete, onToggleActive }: Produ
             </div>
           )
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary-100 to-accent-100">
-            <span className="text-4xl">📦</span>
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300 text-gray-500 text-sm font-semibold">
+            <span>Sin imagen</span>
           </div>
         )}
         {product.isActive && (
