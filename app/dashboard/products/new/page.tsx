@@ -40,12 +40,20 @@ export default function NewProductPage() {
         description: formData.description,
       };
 
-      // Intentar crear en API
-      try {
-        await addProduct(productToAdd);
-      } catch (apiError) {
-        // Si la API falla, no es crítico - el producto se guardará en localStorage
-        console.warn('API unavailable, but product will be saved in browser cache:', apiError);
+      // Crear producto (guarda en API o localStorage)
+      const newProduct = await addProduct(productToAdd);
+      
+      // Guardar en localStorage también
+      if (typeof window !== 'undefined') {
+        const cached = localStorage.getItem('cafeteria_productos');
+        const products = cached ? JSON.parse(cached) : [];
+        
+        // Verificar si ya existe
+        const exists = products.some((p: any) => p.id === newProduct.id);
+        if (!exists) {
+          products.push(newProduct);
+          localStorage.setItem('cafeteria_productos', JSON.stringify(products));
+        }
       }
 
       alert('✅ Producto creado exitosamente');
