@@ -257,7 +257,7 @@ export default function SalesPage() {
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300 text-gray-500 text-xs font-semibold">
-                          <span>Sin imagen</span>
+                          <div className="w-full h-full bg-gray-200"></div>
                         </div>
                       )}
                     </div>

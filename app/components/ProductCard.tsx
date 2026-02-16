@@ -35,9 +35,7 @@ export function ProductCard({ product, onEdit, onDelete, onToggleActive }: Produ
             loading="lazy"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300 text-gray-500 text-sm font-semibold">
-            <span>Sin imagen</span>
-          </div>
+          <div className="w-full h-full bg-gray-200"></div>
         )}
         {product.isActive && (
           <div className="absolute top-2 right-2 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-semibold">

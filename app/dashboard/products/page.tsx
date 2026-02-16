@@ -1,19 +1,22 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { PageContainer, Button } from '@/app/components/ui';
 import { ProductCard } from '@/app/components/ProductCard';
 import { Product } from '@/app/types/menu';
-import { getProducts, deleteProduct, updateProduct } from '@/app/lib/store';
+import { deleteProduct, updateProduct } from '@/app/lib/store';
 import { obtenerClaveValida } from '@/app/lib/auth-utils';
+import { useProducts } from '@/app/lib/useProducts';
 import PINVerification from '@/app/components/PINVerification';
 
 export default function ProductsPage() {
   const router = useRouter();
-  const [products, setProducts] = useState<Product[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  
+  // Usar el hook personalizado para productos con localStorage
+  const { products, setProducts, isLoading: apiLoading, isLoaded } = useProducts();
+  
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
@@ -30,17 +33,8 @@ export default function ProductsPage() {
     return matchesSearch && matchesCategory && matchesStatus;
   });
 
-  const loadProducts = async () => {
-    try {
-      const data = await getProducts();
-      setProducts(data);
-    } catch (error) {
-      console.error('Error loading products:', error);
-    }
-  };
-
-  useEffect(() => {
-    // Verificar si ya hay una clave válida desde localStorage
+  // Verificar PIN al montar el componente
+  React.useEffect(() => {
     const pinValido = obtenerClaveValida();
     if (pinValido) {
       setIsPINVerified(true);
@@ -48,8 +42,6 @@ export default function ProductsPage() {
     } else {
       setShowPINModal(true);
     }
-    
-    loadProducts();
   }, []);
 
   const handleDelete = async (productId: string) => {
@@ -59,14 +51,16 @@ export default function ProductsPage() {
       return;
     }
     if (!confirm('¿Eliminar producto? Esta acción es irreversible.')) return;
-    setIsLoading(true);
+    
     try {
       const success = await deleteProduct(productId);
       if (success) {
-        await loadProducts();
+        // Actualizar estado local (se sincroniza con localStorage automáticamente)
+        setProducts(products.filter(p => p.id !== productId));
       }
-    } finally {
-      setIsLoading(false);
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      alert('Error al eliminar el producto');
     }
   };
 
@@ -76,8 +70,18 @@ export default function ProductsPage() {
       setShowActionPINModal(true);
       return;
     }
-    await updateProduct(productId, { isActive });
-    await loadProducts();
+    
+    try {
+      await updateProduct(productId, { isActive });
+      // Actualizar estado local
+      setProducts(
+        products.map(p => 
+          p.id === productId ? { ...p, isActive } : p
+        )
+      );
+    } catch (error) {
+      console.error('Error toggling product status:', error);
+    }
   };
 
   const handleEdit = (product: Product) => {
@@ -101,14 +105,26 @@ export default function ProductsPage() {
     if (pendingAction) {
       if (pendingAction.action === 'delete' && pendingAction.productId) {
         if (confirm('¿Eliminar producto? Esta acción es irreversible.')) {
-          await deleteProduct(pendingAction.productId);
-          await loadProducts();
+          try {
+            await deleteProduct(pendingAction.productId);
+            setProducts(products.filter(p => p.id !== pendingAction.productId));
+          } catch (error) {
+            console.error('Error deleting product:', error);
+          }
         }
       } else if (pendingAction.action === 'toggle' && pendingAction.productId) {
         const product = products.find(p => p.id === pendingAction.productId);
         if (product) {
-          await updateProduct(pendingAction.productId, { isActive: !product.isActive });
-          await loadProducts();
+          try {
+            await updateProduct(pendingAction.productId, { isActive: !product.isActive });
+            setProducts(
+              products.map(p =>
+                p.id === pendingAction.productId ? { ...p, isActive: !p.isActive } : p
+              )
+            );
+          } catch (error) {
+            console.error('Error updating product:', error);
+          }
         }
       } else if (pendingAction.action === 'edit' && pendingAction.productId) {
         router.push(`/dashboard/products/${pendingAction.productId}/edit`);
@@ -133,6 +149,10 @@ export default function ProductsPage() {
       {!isPINVerified ? (
         <div className="flex items-center justify-center py-12">
           <p className="text-gray-600">Verificando acceso...</p>
+        </div>
+      ) : !isLoaded ? (
+        <div className="flex items-center justify-center py-12">
+          <p className="text-gray-600">Cargando productos...</p>
         </div>
       ) : (
       <>

@@ -28,7 +28,7 @@ export default function NewProductPage() {
     try {
       const stockValue = formData.stock ? Number(formData.stock) : 0;
       
-      // Crear producto usando el store (pasar sólo campos esperados por el store)
+      // Crear producto con TODOS los campos incluyendo imageUrl
       const newProduct = await addProduct({
         name: formData.name,
         price: Number(formData.price),
@@ -36,6 +36,8 @@ export default function NewProductPage() {
         isActive: formData.isActive,
         category: formData.category,
         stock: stockValue,
+        imageUrl: formData.imageUrl,
+        description: formData.description,
       });
 
       if (!newProduct) throw new Error('No se pudo crear producto');

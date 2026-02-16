@@ -71,124 +71,90 @@ export function ProductForm({
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     
-    if (file) {
-      // Validar tipo de archivo
-      const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml'];
-      if (!validTypes.includes(file.type)) {
-        setErrors(prev => ({
-          ...prev,
-          imageUrl: 'Formato no soportado. Usa JPEG, PNG, WebP o SVG',
-        }));
-        return;
-      }
-      
-      // Validar tamaño físico (máximo 2MB)
-      if (file.size > 2 * 1024 * 1024) {
-        setErrors(prev => ({
-          ...prev,
-          imageUrl: 'Archivo muy grande. Máximo 2MB',
-        }));
-        return;
-      }
-      
-      // Para PNG, redimensionar la imagen
-      if (file.type === 'image/png' || file.type === 'image/jpeg') {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          const img = document.createElement('img') as HTMLImageElement;
-          img.onload = () => {
-            // Crear canvas y redimensionar
-            const canvas = document.createElement('canvas');
-            let width = img.width;
-            let height = img.height;
-            
-            // Limitar a 300px de ancho máximo
-            if (width > 300) {
-              height = Math.round((height * 300) / width);
-              width = 300;
-            }
-            
-            canvas.width = width;
-            canvas.height = height;
-            const ctx = canvas.getContext('2d');
-            if (ctx) {
-              ctx.drawImage(img, 0, 0, width, height);
-              
-              // Convertir a data URL con compresión
-              const quality = file.type === 'image/png' ? 0.8 : 0.85;
-              const dataUrl = canvas.toDataURL('image/jpeg', quality);
-              
-              // Validar tamaño del data URL (máximo 50KB)
-              if (dataUrl.length > 50 * 1024) {
-                setErrors(prev => ({
-                  ...prev,
-                  imageUrl: 'Imagen muy pesada. Se comprimió pero sigue siendo grande. Usa una imagen más pequeña o de menor resolución.',
-                }));
-                return;
-              }
-              
-              setPreview(dataUrl);
-              setFormData(prev => ({
-                ...prev,
-                imageUrl: dataUrl,
-              }));
-              setErrors(prev => ({
-                ...prev,
-                imageUrl: undefined,
-              }));
-            }
-          };
-          img.onerror = () => {
-            setErrors(prev => ({
-              ...prev,
-              imageUrl: 'Error al procesar la imagen.',
-            }));
-          };
-          img.src = event.target?.result as string;
-        };
-        reader.onerror = () => {
-          setErrors(prev => ({
-            ...prev,
-            imageUrl: 'Error al leer la imagen. Intenta otra.',
-          }));
-        };
-        reader.readAsDataURL(file);
-      } else {
-        // Para SVG y WebP, procesar directamente
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          const dataUrl = event.target?.result as string;
-          
-          // Validar que el data URL no sea muy grande (máximo 50KB en base64)
-          if (dataUrl.length > 50 * 1024) {
-            setErrors(prev => ({
-              ...prev,
-              imageUrl: 'Imagen muy pesada. Usa una imagen más pequeña.',
-            }));
-            return;
-          }
-          
-          setPreview(dataUrl);
-          setFormData(prev => ({
-            ...prev,
-            imageUrl: dataUrl,
-          }));
-          setErrors(prev => ({
-            ...prev,
-            imageUrl: undefined,
-          }));
-        };
-        
-        reader.onerror = () => {
-          setErrors(prev => ({
-            ...prev,
-            imageUrl: 'Error al leer la imagen.',
-          }));
-        };
-        
-        reader.readAsDataURL(file);
-      }
+    if (!file) return;
+
+    const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml'];
+    if (!validTypes.includes(file.type)) {
+      setErrors(prev => ({
+        ...prev,
+        imageUrl: 'Formato no soportado',
+      }));
+      return;
     }
+
+    if (file.size > 2 * 1024 * 1024) {
+      setErrors(prev => ({
+        ...prev,
+        imageUrl: 'Archivo muy grande',
+      }));
+      return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = (event) => {
+      const dataUrl = event.target?.result as string;
+
+      if (file.type === 'image/png' || file.type === 'image/jpeg') {
+        const img = new window.Image();
+        img.crossOrigin = 'anonymous';
+
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+
+          if (width > 300) {
+            height = Math.round((height * 300) / width);
+            width = 300;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            const compressedUrl = canvas.toDataURL('image/jpeg', 0.85);
+
+            setPreview(compressedUrl);
+            setFormData(prev => ({
+              ...prev,
+              imageUrl: compressedUrl,
+            }));
+            setErrors(prev => ({
+              ...prev,
+              imageUrl: undefined,
+            }));
+          }
+        };
+
+        img.onerror = () => {
+          console.error('Error cargando imagen');
+        };
+
+        img.src = dataUrl;
+      } else {
+        setPreview(dataUrl);
+        setFormData(prev => ({
+          ...prev,
+          imageUrl: dataUrl,
+        }));
+        setErrors(prev => ({
+          ...prev,
+          imageUrl: undefined,
+        }));
+      }
+    };
+
+    reader.onerror = () => {
+      setErrors(prev => ({
+        ...prev,
+        imageUrl: 'Error al leer la imagen',
+      }));
+    };
+
+    reader.readAsDataURL(file);
   };
 
   const validateForm = (): boolean => {
@@ -385,16 +351,11 @@ export function ProductForm({
                 alt="Preview"
                 fill
                 className="object-cover"
-                onError={() => setPreview('')}
+                priority
               />
             </div>
           ) : (
-            <div className="w-full aspect-square mb-4 bg-gradient-to-br from-primary-100 to-accent-100 rounded-lg flex items-center justify-center">
-              <div className="text-center">
-                <span className="text-4xl mb-2 block">🖼️</span>
-                <p className="text-sm text-gray-600">Sin imagen</p>
-              </div>
-            </div>
+            <div className="w-full aspect-square mb-4 bg-gray-100 rounded-lg"></div>
           )}
 
           {/* Información del producto */}
