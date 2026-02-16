@@ -371,7 +371,7 @@ export async function getOrCreateCustomer(name: string, phone?: string): Promise
 
   if (!customer) {
     // Crear nuevo cliente con ID único
-    customer = {
+    const newCustomer: Customer = {
       id: Date.now().toString(),
       name,
       phone,
@@ -380,12 +380,14 @@ export async function getOrCreateCustomer(name: string, phone?: string): Promise
       totalDebt: 0,
     };
     
+    let finalCustomer = newCustomer;
+    
     try {
       // Intentar crear en API
       const res = await fetch('/api/clientes', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(customer),
+        body: JSON.stringify(newCustomer),
       });
       
       if (!res.ok) {
@@ -395,7 +397,7 @@ export async function getOrCreateCustomer(name: string, phone?: string): Promise
       const apiCustomer = await res.json();
       // Usar la respuesta de la API si es válida
       if (apiCustomer && apiCustomer.id) {
-        customer = apiCustomer;
+        finalCustomer = apiCustomer;
       }
     } catch (apiError) {
       // Si la API falla, el cliente ya está listo para guardar localmente
@@ -405,11 +407,11 @@ export async function getOrCreateCustomer(name: string, phone?: string): Promise
     // Guardar en localStorage para persistencia
     if (typeof window !== 'undefined') {
       const allCustomers = await getCustomers();
-      if (customer) {
-        allCustomers.push(customer);
-        localStorage.setItem('cafeteria_clientes', JSON.stringify(allCustomers));
-      }
+      allCustomers.push(finalCustomer);
+      localStorage.setItem('cafeteria_clientes', JSON.stringify(allCustomers));
     }
+    
+    customer = finalCustomer;
   }
 
   return customer;
