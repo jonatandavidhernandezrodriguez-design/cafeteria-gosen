@@ -18,30 +18,22 @@ export function ProductCard({ product, onEdit, onDelete, onToggleActive }: Produ
     <Card variant="elevated" padding="md" className="flex flex-col h-full hover:shadow-soft-lg transition-shadow">
       {/* Imagen - Contenedor responsivo */}
       <div className="relative w-full h-48 mb-4 bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center flex-shrink-0">
-        {product.imageUrl && product.imageUrl.trim() ? (
-          product.imageUrl.startsWith('data:') ? (
-            <img
-              src={product.imageUrl}
-              alt={product.name}
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-                display: 'block'
-              }}
-            />
-          ) : (
-            <div style={{ width: '100%', height: '100%', position: 'relative', overflow: 'hidden' }}>
-              <Image
-                src={product.imageUrl}
-                alt={product.name}
-                fill
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                style={{ objectFit: 'cover' }}
-                priority={false}
-              />
-            </div>
-          )
+        {product.imageUrl ? (
+          <img
+            src={product.imageUrl}
+            alt={product.name}
+            onError={(e) => {
+              const img = e.target as HTMLImageElement;
+              img.style.display = 'none';
+            }}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              display: 'block'
+            }}
+            loading="lazy"
+          />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300 text-gray-500 text-sm font-semibold">
             <span>Sin imagen</span>

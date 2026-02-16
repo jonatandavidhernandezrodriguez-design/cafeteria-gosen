@@ -18,26 +18,21 @@ export function ProductCard({ product, onAddSale }: ProductCardProps) {
     <div className="bg-white rounded-xl shadow-soft border border-gray-200 overflow-hidden hover:shadow-soft-lg transition-shadow h-full flex flex-col">
       {/* Imagen */}
       <div className="relative w-full h-48 bg-gray-100 overflow-hidden flex items-center justify-center border-b border-gray-200">
-        {product.imageUrl && product.imageUrl.trim() ? (
-          product.imageUrl.startsWith('data:') ? (
-            <img
-              src={product.imageUrl}
-              alt={product.name}
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover'
-              }}
-            />
-          ) : (
-            <Image
-              src={product.imageUrl}
-              alt={product.name}
-              fill
-              className="object-cover"
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            />
-          )
+        {product.imageUrl ? (
+          <img
+            src={product.imageUrl}
+            alt={product.name}
+            onError={(e) => {
+              const img = e.target as HTMLImageElement;
+              img.style.display = 'none';
+            }}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover'
+            }}
+            loading="lazy"
+          />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300 text-gray-500 text-sm font-semibold">
             <span>Sin imagen</span>
