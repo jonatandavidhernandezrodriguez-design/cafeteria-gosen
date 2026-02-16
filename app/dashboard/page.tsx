@@ -54,7 +54,7 @@ export default function DashboardHome() {
   };
 
   // Calcular productos con stock bajo
-  const lowStockProducts = products.filter(p => p.stock <= 5);
+  const lowStockProducts = products.filter(p => (p.stock ?? 0) <= 5);
 
   const handleExportStats = (format: 'pdf' | 'excel') => {
     if (!isPINVerified) {
