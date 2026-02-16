@@ -42,7 +42,24 @@ export default function DashboardHome() {
         console.error('Error loading dashboard data:', error);
       }
     };
+    
+    // Cargar datos al montar
     loadData();
+    
+    // Recargar cada 3 segundos
+    const interval = setInterval(loadData, 3000);
+    
+    // Listener para cambios en localStorage
+    const handleStorageChange = () => {
+      loadData();
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, []);
 
   const todaySales = {

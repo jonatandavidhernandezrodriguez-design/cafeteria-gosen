@@ -225,12 +225,39 @@ export async function recordProductSale(_productId: string, _quantity: number, _
 // SALES
 // ================
 export async function addSale(sale: Omit<Sale, 'id' | 'date'>): Promise<Sale> {
-  const res = await fetch('/api/ventas', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(sale),
-  });
-  return res.json();
+  const newSale: Sale = {
+    ...sale,
+    id: Date.now().toString(),
+    date: new Date().toISOString(),
+  };
+
+  try {
+    // Intentar a través de API
+    const res = await fetch('/api/ventas', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(sale),
+    });
+    
+    if (!res.ok) {
+      throw new Error(`API error: ${res.status}`);
+    }
+    
+    return res.json();
+  } catch (apiError) {
+    // Si la API falla, guardar en localStorage
+    console.warn('API unavailable, saving sale to localStorage:', apiError);
+    
+    if (typeof window !== 'undefined') {
+      const cached = localStorage.getItem('cafeteria_ventas');
+      const sales: Sale[] = cached ? JSON.parse(cached) : [];
+      sales.push(newSale);
+      localStorage.setItem('cafeteria_ventas', JSON.stringify(sales));
+    }
+    
+    // Retornar la venta creada de todas formas
+    return newSale;
+  }
 }
 
 export async function getSales(): Promise<Sale[]> {

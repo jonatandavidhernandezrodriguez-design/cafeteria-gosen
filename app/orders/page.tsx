@@ -34,7 +34,23 @@ export default function OrdersPage() {
         setIsLoading(false);
       }
     };
+    
     loadSales();
+    
+    // Recargar cada 2 segundos
+    const interval = setInterval(loadSales, 2000);
+    
+    // Listener para cambios en localStorage
+    const handleStorageChange = () => {
+      loadSales();
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, []);
 
   const statusConfig = {
