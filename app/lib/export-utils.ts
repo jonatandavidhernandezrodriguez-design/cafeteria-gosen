@@ -1,8 +1,5 @@
-import jsPDF from 'jspdf';
+import { jsPDF } from 'jspdf';
 import * as XLSX from 'xlsx';
-
-// Importing autoTable plugin for jsPDF
-import autoTable from 'jspdf-autotable';
 
 interface DebtorData {
   name: string;
@@ -64,38 +61,43 @@ export const exportToExcel = (data: any[], filename: string) => {
 
 /* ========== ESTADÍSTICAS DASHBOARD ========== */
 export const exportStatisticsToPDF = (stats: DashboardStats) => {
-  const doc = new jsPDF();
+  try {
+    const doc = new jsPDF();
 
-  doc.setFontSize(18);
-  doc.text('Estadísticas del Día - Cafetería Gosen', 14, 15);
+    doc.setFontSize(18);
+    doc.text('Estadísticas del Día - Cafetería Gosen', 14, 15);
 
-  doc.setFontSize(10);
-  doc.setTextColor(128);
-  doc.text(`Generado: ${stats.date}`, 14, 25);
+    doc.setFontSize(10);
+    doc.setTextColor(128);
+    doc.text(`Generado: ${stats.date}`, 14, 25);
 
-  // Estadísticas principales
-  const startY = 35;
-  doc.setFontSize(11);
-  doc.setTextColor(0);
-  
-  const statsText = [
-    ['Ingresos Totales:', `$${stats.revenue.toLocaleString('es-CO')}`],
-    ['Ganancias:', `$${stats.profit.toLocaleString('es-CO')}`],
-    ['Items Vendidos:', `${stats.itemsSold} unidades`],
-    ['Crédito Pendiente:', `$${stats.creditPending.toLocaleString('es-CO')}`],
-    ['Total Transacciones:', `${stats.totalTransactions}`],
-  ];
+    // Estadísticas principales
+    const startY = 35;
+    doc.setFontSize(11);
+    doc.setTextColor(0);
+    
+    const statsText = [
+      ['Ingresos Totales:', `$${stats.revenue.toLocaleString('es-CO')}`],
+      ['Ganancias:', `$${stats.profit.toLocaleString('es-CO')}`],
+      ['Items Vendidos:', `${stats.itemsSold} unidades`],
+      ['Crédito Pendiente:', `$${stats.creditPending.toLocaleString('es-CO')}`],
+      ['Total Transacciones:', `${stats.totalTransactions}`],
+    ];
 
-  let yOffset = startY;
-  statsText.forEach((row) => {
-    doc.setFont('helvetica', 'bold');
-    doc.text(row[0], 14, yOffset);
-    doc.setFont('helvetica', 'normal');
-    doc.text(row[1], 100, yOffset);
-    yOffset += 8;
-  });
+    let yOffset = startY;
+    statsText.forEach((row) => {
+      doc.setFont('Helvetica', 'bold');
+      doc.text(row[0], 14, yOffset);
+      doc.setFont('Helvetica', 'normal');
+      doc.text(row[1], 100, yOffset);
+      yOffset += 8;
+    });
 
-  doc.save('estadisticas_dia.pdf');
+    doc.save('estadisticas_dia.pdf');
+  } catch (error) {
+    console.error('Error exporting stats to PDF:', error);
+    throw error;
+  }
 };
 
 export const exportStatisticsToExcel = (stats: DashboardStats) => {
@@ -121,36 +123,54 @@ export const exportStatisticsToExcel = (stats: DashboardStats) => {
 
 /* ========== DEUDORES ========== */
 export const exportDebtorsToPDF = (debtors: DebtorData[], totalDebt: number) => {
-  const doc = new jsPDF();
+  try {
+    const doc = new jsPDF();
 
-  doc.setFontSize(16);
-  doc.text('Reporte de Deudores - Cafetería Gosen', 14, 15);
+    doc.setFontSize(16);
+    doc.text('Reporte de Deudores - Cafetería Gosen', 14, 15);
 
-  doc.setFontSize(10);
-  doc.setTextColor(128);
-  doc.text(`Generado: ${new Date().toLocaleDateString('es-CO')}`, 14, 25);
+    doc.setFontSize(10);
+    doc.setTextColor(128);
+    doc.text(`Generado: ${new Date().toLocaleDateString('es-CO')}`, 14, 25);
 
-  doc.setFontSize(11);
-  doc.setTextColor(0);
-  doc.text(`Total de Deudores: ${debtors.length}`, 14, 35);
-  doc.text(`Deuda Total: $${totalDebt.toLocaleString('es-CO')}`, 14, 42);
+    doc.setFontSize(11);
+    doc.setTextColor(0);
+    doc.text(`Total de Deudores: ${debtors.length}`, 14, 35);
+    doc.text(`Deuda Total: $${totalDebt.toLocaleString('es-CO')}`, 14, 42);
 
-  const tableData = debtors.map((d) => [
-    d.name,
-    d.phoneNumber || '-',
-    `$${d.debt.toLocaleString('es-CO')}`,
-    d.lastSale ? new Date(d.lastSale).toLocaleDateString('es-CO') : '-',
-  ]);
+    // Tabla simple sin autoTable
+    let yOffset = 52;
+    const colX = [14, 60, 100, 140];
+    const headers = ['Cliente', 'Teléfono', 'Deuda', 'Última Venta'];
+    
+    doc.setFont('Helvetica', 'bold');
+    doc.setFillColor(37, 99, 235);
+    doc.setTextColor(255, 255, 255);
+    headers.forEach((header, i) => {
+      doc.text(header, colX[i], yOffset);
+    });
+    
+    yOffset += 8;
+    doc.setTextColor(0);
+    doc.setFont('Helvetica', 'normal');
+    
+    debtors.slice(0, 20).forEach((debtor) => {
+      if (yOffset > 270) {
+        doc.addPage();
+        yOffset = 20;
+      }
+      doc.text(debtor.name, colX[0], yOffset);
+      doc.text(debtor.phoneNumber || '-', colX[1], yOffset);
+      doc.text(`$${debtor.debt.toLocaleString('es-CO')}`, colX[2], yOffset);
+      doc.text(debtor.lastSale ? new Date(debtor.lastSale).toLocaleDateString('es-CO') : '-', colX[3], yOffset);
+      yOffset += 7;
+    });
 
-  autoTable(doc, {
-    head: [['Cliente', 'Teléfono', 'Deuda', 'Última Venta']],
-    body: tableData,
-    startY: 50,
-    headStyles: { fillColor: [37, 99, 235], textColor: [255, 255, 255] },
-    alternateRowStyles: { fillColor: [245, 245, 245] },
-  });
-
-  doc.save('reporte_deudores.pdf');
+    doc.save('reporte_deudores.pdf');
+  } catch (error) {
+    console.error('Error exporting debtors to PDF:', error);
+    throw error;
+  }
 };
 
 export const exportDebtorsToExcel = (debtors: DebtorData[], totalDebt: number) => {
@@ -188,36 +208,54 @@ export const exportPaymentHistoryToPDF = (
   payments: PaymentData[],
   totalPaid: number
 ) => {
-  const doc = new jsPDF();
+  try {
+    const doc = new jsPDF();
 
-  doc.setFontSize(16);
-  doc.text('Historial de Pagos - Cafetería Gosen', 14, 15);
+    doc.setFontSize(16);
+    doc.text('Historial de Pagos - Cafetería Gosen', 14, 15);
 
-  doc.setFontSize(10);
-  doc.setTextColor(128);
-  doc.text(`Generado: ${new Date().toLocaleDateString('es-CO')}`, 14, 25);
+    doc.setFontSize(10);
+    doc.setTextColor(128);
+    doc.text(`Generado: ${new Date().toLocaleDateString('es-CO')}`, 14, 25);
 
-  doc.setFontSize(11);
-  doc.setTextColor(0);
-  doc.text(`Total Pagado: $${totalPaid.toLocaleString('es-CO')}`, 14, 35);
-  doc.text(`Número de Pagos: ${payments.length}`, 14, 42);
+    doc.setFontSize(11);
+    doc.setTextColor(0);
+    doc.text(`Total Pagado: $${totalPaid.toLocaleString('es-CO')}`, 14, 35);
+    doc.text(`Número de Pagos: ${payments.length}`, 14, 42);
 
-  const tableData = payments.map((p) => [
-    new Date(p.date).toLocaleDateString('es-CO'),
-    p.customer,
-    `$${p.amount.toLocaleString('es-CO')}`,
-    p.note || '-',
-  ]);
+    // Tabla simple sin autoTable
+    let yOffset = 52;
+    const colX = [14, 60, 110, 150];
+    const headers = ['Fecha', 'Cliente', 'Monto', 'Detalle'];
+    
+    doc.setFont('Helvetica', 'bold');
+    doc.setFillColor(34, 197, 94);
+    doc.setTextColor(255, 255, 255);
+    headers.forEach((header, i) => {
+      doc.text(header, colX[i], yOffset);
+    });
+    
+    yOffset += 8;
+    doc.setTextColor(0);
+    doc.setFont('Helvetica', 'normal');
+    
+    payments.slice(0, 20).forEach((payment) => {
+      if (yOffset > 270) {
+        doc.addPage();
+        yOffset = 20;
+      }
+      doc.text(new Date(payment.date).toLocaleDateString('es-CO'), colX[0], yOffset);
+      doc.text(payment.customer, colX[1], yOffset);
+      doc.text(`$${payment.amount.toLocaleString('es-CO')}`, colX[2], yOffset);
+      doc.text(payment.note || '-', colX[3], yOffset);
+      yOffset += 7;
+    });
 
-  autoTable(doc, {
-    head: [['Fecha', 'Cliente', 'Monto', 'Detalle']],
-    body: tableData,
-    startY: 50,
-    headStyles: { fillColor: [34, 197, 94], textColor: [255, 255, 255] },
-    alternateRowStyles: { fillColor: [245, 245, 245] },
-  });
-
-  doc.save('historial_pagos.pdf');
+    doc.save('historial_pagos.pdf');
+  } catch (error) {
+    console.error('Error exporting payment history to PDF:', error);
+    throw error;
+  }
 };
 
 export const exportPaymentHistoryToExcel = (

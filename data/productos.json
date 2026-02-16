@@ -4,8 +4,17 @@
     "price": 2,
     "cost": 2,
     "isActive": true,
-    "category": "pastries",
-    "stock": 1,
-    "id": "1771203037331"
+    "category": "",
+    "stock": 2,
+    "id": "1771203479874"
+  },
+  {
+    "name": "c",
+    "price": 2,
+    "cost": 2,
+    "isActive": true,
+    "category": "",
+    "stock": 2,
+    "id": "1771203492786"
   }
 ]

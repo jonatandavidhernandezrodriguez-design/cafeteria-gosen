@@ -58,6 +58,27 @@ export default function DashboardHome() {
   const handleExportStats = (format: 'pdf' | 'excel') => {
     if (!isPINVerified) {
       setShowPINModal(true);
+      return;
+    }
+
+    const stats = {
+      revenue: revenue,
+      profit: profit,
+      itemsSold: itemsSold,
+      creditPending: 0,
+      totalTransactions: 24,
+      date: new Date().toLocaleDateString('es-CO'),
+    };
+
+    try {
+      if (format === 'pdf') {
+        exportStatisticsToPDF(stats);
+      } else if (format === 'excel') {
+        exportStatisticsToExcel(stats);
+      }
+    } catch (error) {
+      console.error('Error exporting stats:', error);
+      alert(`❌ Error al exportar: ${error instanceof Error ? error.message : 'Desconocido'}`);
     }
   };
 
