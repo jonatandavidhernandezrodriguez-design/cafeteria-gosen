@@ -3,13 +3,15 @@
 import React, { useState, useEffect } from 'react';
 import { PageContainer, Button, Card } from '@/app/components/ui';
 import Link from 'next/link';
-import { getProducts, getTodayRevenue, getTodayProfit, getTodayItemsSold } from '@/app/lib/store';
+import { getTodayRevenue, getTodayProfit, getTodayItemsSold, getSales } from '@/app/lib/store';
 import { formatCOP } from '@/app/lib/currency';
 import { obtenerClaveValida } from '@/app/lib/auth-utils';
 import { exportStatisticsToPDF, exportStatisticsToExcel } from '@/app/lib/export-utils';
 import PINVerification from '@/app/components/PINVerification';
+import { useProducts } from '@/app/lib/useProducts';
 
 export default function DashboardHome() {
+  const { products } = useProducts();
   const [showStats, setShowStats] = useState(true);
   const [showPINModal, setShowPINModal] = useState(false);
   const [isPINVerified, setIsPINVerified] = useState(false);
@@ -17,26 +19,25 @@ export default function DashboardHome() {
   const [revenue, setRevenue] = useState(0);
   const [profit, setProfit] = useState(0);
   const [itemsSold, setItemsSold] = useState(0);
-  const [products, setProducts] = useState<any[]>([]);
 
   useEffect(() => {
     // Verificar si ya hay una clave válida desde localStorage
     const pinValido = obtenerClaveValida();
     setIsPINVerified(pinValido);
     setShowPINModal(!pinValido);
-    
+  }, []);
+
+  useEffect(() => {
     const loadData = async () => {
       try {
-        const [rev, prof, itemsSoldVal, prods] = await Promise.all([
+        const [rev, prof, itemsSoldVal] = await Promise.all([
           getTodayRevenue(),
           getTodayProfit(),
           getTodayItemsSold(),
-          getProducts(),
         ]);
         setRevenue(rev);
         setProfit(prof);
         setItemsSold(itemsSoldVal);
-        setProducts(prods);
       } catch (error) {
         console.error('Error loading dashboard data:', error);
       }

@@ -235,8 +235,26 @@ export async function addSale(sale: Omit<Sale, 'id' | 'date'>): Promise<Sale> {
 
 export async function getSales(): Promise<Sale[]> {
   try {
+    // Paso 1: Cargar de localStorage (fuente primaria)
+    if (typeof window !== 'undefined') {
+      const cached = localStorage.getItem('cafeteria_ventas');
+      if (cached) {
+        return JSON.parse(cached);
+      }
+    }
+    
+    // Paso 2: Si no hay en localStorage, intentar fetch a API
     const res = await fetch('/api/ventas', { cache: 'no-cache' });
-    return res.json();
+    if (res.ok) {
+      const data = await res.json();
+      // Guardar en localStorage si vinieron de la API
+      if (typeof window !== 'undefined' && Array.isArray(data)) {
+        localStorage.setItem('cafeteria_ventas', JSON.stringify(data));
+      }
+      return data;
+    }
+    
+    return [];
   } catch (error) {
     console.error('Error fetching sales:', error);
     return [];

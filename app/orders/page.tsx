@@ -6,39 +6,36 @@ import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { Container } from '../components/ui/Container';
 import { SectionContainer } from '../components/ui/SectionContainer';
+import { useState, useEffect } from 'react';
+import { getSales } from '@/app/lib/store';
 
-interface OrderItem {
+interface Sale {
   id: string;
   date: string;
-  status: 'pending' | 'preparing' | 'ready' | 'completed';
   total: number;
-  items: number;
+  items: any[];
+  status?: 'pending' | 'preparing' | 'ready' | 'completed';
 }
 
 export default function OrdersPage() {
-  const orders: OrderItem[] = [
-    {
-      id: '001',
-      date: '2025-02-11',
-      status: 'completed',
-      total: 25.50,
-      items: 3,
-    },
-    {
-      id: '002',
-      date: '2025-02-10',
-      status: 'ready',
-      total: 18.99,
-      items: 2,
-    },
-    {
-      id: '003',
-      date: '2025-02-09',
-      status: 'preparing',
-      total: 32.45,
-      items: 4,
-    },
-  ];
+  const [sales, setSales] = useState<Sale[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadSales = async () => {
+      try {
+        const allSales = await getSales();
+        // Ordenar por fecha descendente (más recientes primero)
+        const sorted = allSales.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        setSales(sorted);
+      } catch (error) {
+        console.error('Error loading sales:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadSales();
+  }, []);
 
   const statusConfig = {
     pending: { label: 'Pendiente', variant: 'warning' as const },
@@ -57,7 +54,11 @@ export default function OrdersPage() {
           <p className="text-coffee-600">Historial de tus pedidos y seguimiento</p>
         </div>
 
-        {orders.length === 0 ? (
+        {isLoading ? (
+          <Card variant="outlined" padding="lg" className="text-center py-12">
+            <p className="text-coffee-600">Cargando pedidos...</p>
+          </Card>
+        ) : sales.length === 0 ? (
           <Card variant="outlined" padding="lg" className="text-center py-12">
             <div className="mb-4 text-5xl">📋</div>
             <h2 className="text-2xl font-bold text-coffee-900 mb-2">No tienes pedidos aún</h2>
@@ -65,32 +66,40 @@ export default function OrdersPage() {
           </Card>
         ) : (
           <div className="grid gap-4">
-            {orders.map((order) => (
+            {sales.map((order) => (
               <Card key={order.id} variant="elevated" padding="md">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
                   {/* Order Info */}
                   <div>
                     <p className="text-sm text-coffee-600 mb-1">Pedido</p>
                     <p className="font-bold text-lg text-coffee-900">#{order.id}</p>
-                    <p className="text-xs text-coffee-600 mt-1">{order.date}</p>
+                    <p className="text-xs text-coffee-600 mt-1">
+                      {new Date(order.date).toLocaleDateString('es-CO')}
+                    </p>
                   </div>
 
                   {/* Items */}
                   <div>
                     <p className="text-sm text-coffee-600 mb-1">Artículos</p>
-                    <p className="font-bold text-coffee-900">{order.items} items</p>
+                    <p className="font-bold text-coffee-900">
+                      {order.items?.length ?? 0} items
+                    </p>
                   </div>
 
                   {/* Total */}
                   <div>
                     <p className="text-sm text-coffee-600 mb-1">Total</p>
-                    <p className="font-bold text-lg text-coffee-700">${order.total.toFixed(2)}</p>
+                    <p className="font-bold text-lg text-coffee-700">
+                      ${order.total?.toFixed(2) ?? '0.00'}
+                    </p>
                   </div>
 
                   {/* Status and Action */}
                   <div className="flex flex-col gap-2 md:items-end">
-                    <Badge variant={statusConfig[order.status].variant}>
-                      {statusConfig[order.status].label}
+                    <Badge 
+                      variant={statusConfig[order.status as keyof typeof statusConfig]?.variant || 'success'}
+                    >
+                      {statusConfig[order.status as keyof typeof statusConfig]?.label || 'Completado'}
                     </Badge>
                     <button className="text-sm text-sage-600 hover:text-sage-700 font-medium transition-colors">
                       Ver detalles →
