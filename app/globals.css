@@ -122,80 +122,81 @@ body {
     print-color-adjust: exact !important;
   }
   
-  body {
+  html, body {
     background: white !important;
-    color: black !important;
     margin: 0 !important;
     padding: 0 !important;
-    width: 100% !important;
-  }
-  
-  /* Hide everything */
-  body > * {
-    visibility: hidden !important;
-    display: none !important;
-  }
-  
-  /* Show receipt modal */
-  .receipt-modal-container {
-    visibility: visible !important;
-    display: flex !important;
-    position: absolute !important;
-    inset: 0 !important;
-    background: white !important;
     width: 100% !important;
     height: auto !important;
   }
   
+  /* Hide everything except receipt modal */
+  body > * {
+    display: none !important;
+  }
+  
+  /* Show only receipt container */
+  .receipt-modal-container {
+    display: block !important;
+    position: relative !important;
+    width: 100% !important;
+    height: auto !important;
+    inset: auto !important;
+    background: white !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  
   .receipt-modal-content {
-    visibility: visible !important;
     display: block !important;
     position: relative !important;
     background: white !important;
     width: 100% !important;
     height: auto !important;
     max-width: none !important;
-    max-height: none !important;
     overflow: visible !important;
     box-shadow: none !important;
     border-radius: 0 !important;
-    padding: 0 !important;
+    padding: 24px !important;
+    margin: 0 !important;
+    page-break-inside: avoid !important;
   }
   
-  /* Show receipt content */
-  .receipt-modal-container *,
-  .receipt-modal-content * {
-    visibility: visible !important;
-  }
-  
-  /* Remove colors/styling for printing */
-  .bg-black,
-  .bg-opacity-50 {
+  /* Ensure all text content is visible */
+  .receipt-modal-container * {
     background: transparent !important;
+    display: block !important;
   }
   
+  /* Override specific element styles */
   .text-gray-600,
   .text-gray-700,
-  .text-gray-900 {
+  .text-gray-900,
+  .text-blue-600,
+  .text-green-600 {
     color: black !important;
   }
   
-  .bg-gray-50 {
+  .bg-black,
+  .bg-opacity-50,
+  .bg-gray-50,
+  .bg-gradient-to-r {
     background: white !important;
   }
   
   .border-dashed,
   .border {
-    border-color: black !important;
+    border-color: #999 !important;
+    border-style: dashed !important;
   }
   
-  /* Hide buttons */
-  button {
+  /* Hide non-content elements */
+  button,
+  .pointer-events-none {
     display: none !important;
-    visibility: hidden !important;
   }
   
-  /* Font settings */
+  /* Preserve text styling */
   .font-mono {
     font-family: 'Courier New', monospace !important;
   }

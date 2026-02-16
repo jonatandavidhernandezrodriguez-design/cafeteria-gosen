@@ -13,6 +13,7 @@ const nextConfig: NextConfig = {
       },
     ],
     dangerouslyAllowSVG: true,
+    unoptimized: true, // Allow data URLs and local images
   },
 };
 

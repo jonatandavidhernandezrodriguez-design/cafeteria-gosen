@@ -58,6 +58,54 @@ export default function ReportsPage() {
     setSelectedSale(null);
   };
 
+  const handleExportCSV = () => {
+    if (sales.length === 0) {
+      alert('No hay ventas para exportar');
+      return;
+    }
+
+    // Create CSV header
+    const headers = ['Fecha', 'Hora', 'Cliente', 'Metodo Pago', 'Items', 'Ganancia', 'Total'];
+    
+    // Create CSV rows
+    const rows = sales.map(sale => {
+      const date = new Date(sale.date);
+      const dateStr = date.toLocaleDateString('es-CO');
+      const timeStr = date.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+      const itemCount = sale.items.reduce((sum, item) => sum + item.quantity, 0);
+      const profit = sale.profit ?? 0;
+      
+      return [
+        dateStr,
+        timeStr,
+        sale.customerName || 'Sin nombre',
+        sale.paymentMethod === 'cash' ? 'Efectivo' : 'Nequi',
+        itemCount,
+        profit.toString(),
+        sale.total.toString(),
+      ];
+    });
+
+    // Create CSV content
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(',')),
+    ].join('\n');
+
+    // Download CSV
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    
+    link.setAttribute('href', url);
+    link.setAttribute('download', `ventas-${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   if (loading) {
     return (
       <PageContainer
@@ -105,6 +153,15 @@ export default function ReportsPage() {
               <p className="text-sm text-gray-600">Transacciones</p>
               <p className="text-2xl font-bold text-purple-600">{sales.length}</p>
             </Card>
+          </div>
+
+          <div className="mb-6">
+            <button
+              onClick={handleExportCSV}
+              className="px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold rounded-lg transition duration-200 inline-flex items-center gap-2"
+            >
+              📥 Descargar CSV
+            </button>
           </div>
 
           <div className="overflow-x-auto">
