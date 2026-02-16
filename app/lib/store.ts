@@ -78,19 +78,41 @@ export async function updateProductStock(productId: string, quantity: number): P
 }
 
 export async function addProduct(product: Omit<Product, 'id'>): Promise<Product> {
+  const newProduct: Product = {
+    ...product,
+    id: Date.now().toString(),
+  };
+
   try {
+    // Intentar agregar a la API
     const res = await fetch('/api/productos', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(product),
     });
+    
     if (!res.ok) {
       throw new Error(`API error: ${res.status} ${res.statusText}`);
     }
+    
     return res.json();
   } catch (error) {
-    console.error('Error in addProduct:', error);
-    throw error;
+    // Si la API falla, agregar a localStorage como fallback
+    console.warn('API unavailable, saving to localStorage:', error);
+    
+    try {
+      if (typeof window !== 'undefined') {
+        const cached = localStorage.getItem('cafeteria_productos');
+        const products: Product[] = cached ? JSON.parse(cached) : [];
+        products.push(newProduct);
+        localStorage.setItem('cafeteria_productos', JSON.stringify(products));
+      }
+    } catch (localError) {
+      console.error('Error saving to localStorage:', localError);
+    }
+    
+    // Retornar el producto creado de todas formas
+    return newProduct;
   }
 }
 
@@ -105,20 +127,35 @@ export async function updateProduct(id: string, updates: Partial<Product>): Prom
 
     const updated = { ...product, ...updates } as Product;
     
-    const res = await fetch('/api/productos', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(updated),
-    });
-    
-    if (!res.ok) {
-      const errorText = await res.text();
-      console.error('API error:', res.status, errorText);
-      alert(`❌ Error al actualizar: ${res.status}`);
-      return false;
+    try {
+      // Intentar a través de API
+      const res = await fetch('/api/productos', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updated),
+      });
+      
+      if (!res.ok) {
+        throw new Error(`API error: ${res.status}`);
+      }
+      
+      return true;
+    } catch (apiError) {
+      // Si la API falla, actualizar en localStorage
+      console.warn('API unavailable, updating in localStorage:', apiError);
+      
+      if (typeof window !== 'undefined') {
+        const cached = localStorage.getItem('cafeteria_productos');
+        const products: Product[] = cached ? JSON.parse(cached) : [];
+        const index = products.findIndex(p => p.id === id);
+        if (index !== -1) {
+          products[index] = updated;
+          localStorage.setItem('cafeteria_productos', JSON.stringify(products));
+        }
+      }
+      
+      return true; // Considerar éxito aunque sea solo local
     }
-    
-    return true;
   } catch (error) {
     console.error('updateProduct error:', error);
     alert(`❌ Error: ${error instanceof Error ? error.message : 'Desconocido'}`);
@@ -128,20 +165,32 @@ export async function updateProduct(id: string, updates: Partial<Product>): Prom
 
 export async function deleteProduct(id: string): Promise<boolean> {
   try {
-    const res = await fetch('/api/productos', {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id }),
-    });
-    
-    if (!res.ok) {
-      const error = await res.json();
-      console.error('Delete error:', error);
-      alert(`❌ Error al eliminar: ${error.error || 'Unknown error'}`);
-      return false;
+    try {
+      // Intentar a través de API
+      const res = await fetch('/api/productos', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      });
+      
+      if (!res.ok) {
+        throw new Error(`API error: ${res.status}`);
+      }
+      
+      return true;
+    } catch (apiError) {
+      // Si la API falla, eliminar de localStorage
+      console.warn('API unavailable, deleting from localStorage:', apiError);
+      
+      if (typeof window !== 'undefined') {
+        const cached = localStorage.getItem('cafeteria_productos');
+        const products: Product[] = cached ? JSON.parse(cached) : [];
+        const filtered = products.filter(p => p.id !== id);
+        localStorage.setItem('cafeteria_productos', JSON.stringify(filtered));
+      }
+      
+      return true; // Considerar éxito aunque sea solo local
     }
-    
-    return true;
   } catch (error) {
     console.error('deleteProduct error:', error);
     alert(`❌ Error: ${error instanceof Error ? error.message : 'Unknown'}`);

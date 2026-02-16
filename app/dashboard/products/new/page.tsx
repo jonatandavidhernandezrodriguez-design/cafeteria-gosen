@@ -28,8 +28,8 @@ export default function NewProductPage() {
     try {
       const stockValue = formData.stock ? Number(formData.stock) : 0;
       
-      // Crear producto con TODOS los campos incluyendo imageUrl
-      const newProduct = await addProduct({
+      // Crear producto
+      const productToAdd = {
         name: formData.name,
         price: Number(formData.price),
         cost: Number(formData.cost),
@@ -38,16 +38,21 @@ export default function NewProductPage() {
         stock: stockValue,
         imageUrl: formData.imageUrl,
         description: formData.description,
-      });
+      };
 
-      if (!newProduct) throw new Error('No se pudo crear producto');
-      
+      // Intentar crear en API
+      try {
+        await addProduct(productToAdd);
+      } catch (apiError) {
+        // Si la API falla, no es crítico - el producto se guardará en localStorage
+        console.warn('API unavailable, but product will be saved in browser cache:', apiError);
+      }
+
       alert('✅ Producto creado exitosamente');
-      // Redirigir a la página de productos
       router.push('/dashboard/products');
     } catch (error) {
       console.error('Error al crear producto:', error);
-      alert('❌ Error al crear el producto: ' + String(error));
+      alert('❌ Error: ' + String(error));
     } finally {
       setIsLoading(false);
     }

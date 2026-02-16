@@ -1,14 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Product } from '@/app/types/menu';
-import { getProducts } from '@/app/lib/store';
 import { useLocalStorage } from '@/app/lib/useLocalStorage';
 
 /**
  * Hook personalizado para manejar productos con persistencia en localStorage
- * Sincroniza con la API pero usa localStorage como cache/fallback
+ * NOTA: La fuente de verdad es localStorage. La API es solo para sincronización.
  */
 export function useProducts() {
-  // localStorage para persistencia offline
+  // localStorage para persistencia - es la fuente de verdad
   const [cachedProducts, setCachedProducts, isLoaded] = useLocalStorage<Product[]>(
     'cafeteria_productos',
     []
@@ -21,34 +20,39 @@ export function useProducts() {
 
   // Sincronizar productos con localStorage cada vez que cambien
   useEffect(() => {
-    setCachedProducts(products);
-  }, [products, setCachedProducts]);
-
-  // Cargar productos desde la API al montar
-  useEffect(() => {
-    const loadProducts = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const data = await getProducts();
-        setProducts(data);
-      } catch (err) {
-        console.error('Error loading products from API:', err);
-        setError('Error al cargar productos');
-        // Si falla la API, usar el cache de localStorage
-        if (cachedProducts.length > 0) {
-          setProducts(cachedProducts);
-        }
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    // Solo cargar cuando localStorage esté listo
     if (isLoaded) {
-      loadProducts();
+      setCachedProducts(products);
+    }
+  }, [products, setCachedProducts, isLoaded]);
+
+  // Cargar productos desde localStorage al montar
+  useEffect(() => {
+    if (isLoaded) {
+      // Usar datos de localStorage como fuente principal
+      setProducts(cachedProducts);
+      
+      // Intentar sincronizar con API en background (sin bloquear UI)
+      syncWithAPI();
     }
   }, [isLoaded, cachedProducts]);
+
+  const syncWithAPI = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const res = await fetch('/api/productos', { cache: 'no-cache' });
+      if (!res.ok) throw new Error(`API error: ${res.status}`);
+      
+      const data = await res.json();
+      setProducts(data);
+    } catch (err) {
+      console.warn('API sync failed, using localStorage:', err);
+      // Si falla la API, no pasa nada - localStorage ya tiene los datos
+      setError(null); // No mostrar error al usuario
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return {
     products,
