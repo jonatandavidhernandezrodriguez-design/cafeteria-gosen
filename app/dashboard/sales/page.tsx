@@ -171,10 +171,8 @@ export default function SalesPage() {
     });
   };
 
-  const closeReceipt = async () => {
-    // Recargar productos con stock actualizado
-    const updatedProds = await getProducts();
-    setProducts(updatedProds);
+  const closeReceipt = () => {
+    // Los productos se sincronizan automáticamente desde localStorage via el hook useProducts
     
     // Limpiar carrito y formulario
     setCart([]);
