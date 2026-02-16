@@ -288,5 +288,26 @@
     "status": "completed",
     "id": "1771214186976",
     "date": "2026-02-16T03:56:26.976Z"
+  },
+  {
+    "items": [
+      {
+        "productId": "1771213790709",
+        "name": "g",
+        "price": 4,
+        "cost": 4,
+        "quantity": 1,
+        "subtotal": 4
+      }
+    ],
+    "subtotal": 3.24,
+    "iva": 0.76,
+    "total": 4,
+    "profit": 0,
+    "customerName": "k",
+    "paymentMethod": "nequi",
+    "status": "completed",
+    "id": "1771214378615",
+    "date": "2026-02-16T03:59:38.615Z"
   }
 ]

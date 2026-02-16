@@ -76,118 +76,169 @@ export function exportReceiptToPDF(receipt: any, filename: string = 'factura.pdf
     const doc = new jsPDF({
       orientation: 'portrait',
       unit: 'mm',
-      format: [80, 200] // 80mm ancho, ajustable largo
+      format: [80, 250] // 80mm ancho, 250mm largo
     });
     
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
-    const margin = 3;
+    const margin = 4;
     const contentWidth = pageWidth - (margin * 2);
-    let yPos = margin;
+    let yPos = 6;
     
     // ========== ENCABEZADO ==========
     doc.setTextColor(0, 0, 0);
     doc.setFont('Helvetica', 'bold');
-    doc.setFontSize(12);
+    doc.setFontSize(14);
     doc.text('CAFETERIA GOSEN', pageWidth / 2, yPos, { align: 'center' });
-    yPos += 5;
+    yPos += 7;
     
     doc.setFont('Helvetica', 'normal');
-    doc.setFontSize(8);
+    doc.setFontSize(9);
     doc.text('Desde 2024', pageWidth / 2, yPos, { align: 'center' });
-    yPos += 4;
+    yPos += 5;
     
-    // Línea punteada
+    // Línea separadora gruesa
     doc.setDrawColor(0, 0, 0);
-    doc.setLineWidth(0.3);
+    doc.setLineWidth(1);
     doc.line(margin, yPos, pageWidth - margin, yPos);
-    yPos += 3;
+    yPos += 6;
     
     // ========== INFORMACIÓN DEL RECIBO ==========
     const receiptNumber = `RCP${Date.now().toString().slice(-6)}`;
-    doc.setFontSize(7);
+    doc.setFontSize(8);
     doc.setFont('Helvetica', 'normal');
     doc.text(`Recibo: ${receiptNumber}`, pageWidth / 2, yPos, { align: 'center' });
-    yPos += 3;
-    
-    doc.text(new Date().toLocaleDateString('es-CO'), pageWidth / 2, yPos, { align: 'center' });
-    yPos += 3;
-    
-    doc.text(new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }), pageWidth / 2, yPos, { align: 'center' });
-    yPos += 3;
-    
-    doc.setFont('Helvetica', 'bold');
-    doc.setFontSize(7);
-    const clientText = `Cliente: ${receipt.customerName || 'CLIENTE'}`;
-    doc.text(clientText, pageWidth / 2, yPos, { align: 'center' });
     yPos += 4;
     
-    // Línea separadora
-    doc.setLineWidth(0.3);
-    doc.line(margin, yPos - 1, pageWidth - margin, yPos - 1);
-    yPos += 2;
+    doc.text(new Date().toLocaleDateString('es-CO'), pageWidth / 2, yPos, { align: 'center' });
+    yPos += 4;
     
-    // ========== ITEMS ==========
-    doc.setFont('Helvetica', 'normal');
-    doc.setFontSize(7);
+    doc.text(new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }), pageWidth / 2, yPos, { align: 'center' });
+    yPos += 5;
     
-    if (receipt.items && receipt.items.length > 0) {
-      receipt.items.forEach((item: any) => {
-        const itemName = item.product.name;
-        const itemTotal = item.product.price * item.quantity;
-        
-        // Nombre del producto
-        const nameLines = doc.splitTextToSize(itemName, contentWidth - 8);
-        doc.text(nameLines, margin + 1, yPos);
-        yPos += (nameLines.length * 2.5);
-        
-        // Cantidad x Precio = Total
-        const detailText = `${item.quantity}x $${item.product.price.toLocaleString('es-CO')} = $${itemTotal.toLocaleString('es-CO')}`;
-        doc.text(detailText, margin + 1, yPos);
-        yPos += 3;
-      });
-    }
+    doc.setFont('Helvetica', 'bold');
+    doc.setFontSize(8);
+    const clientText = `Cliente: ${receipt.customerName || 'CLIENTE'}`;
+    doc.text(clientText, pageWidth / 2, yPos, { align: 'center' });
+    yPos += 6;
     
     // Línea separadora
     doc.setLineWidth(0.5);
     doc.line(margin, yPos, pageWidth - margin, yPos);
+    yPos += 5;
+    
+    // ========== ENCABEZADO TABLA ==========
+    doc.setFont('Helvetica', 'bold');
+    doc.setFontSize(8);
+    doc.text('PRODUCTO', margin + 1, yPos);
+    doc.text('CANT', pageWidth - margin - 20, yPos);
+    doc.text('PRECIO', pageWidth - margin - 12, yPos);
+    yPos += 4;
+    
+    // Línea punteada
+    doc.setLineWidth(0.3);
+    doc.line(margin, yPos, pageWidth - margin, yPos);
+    yPos += 4;
+    
+    // ========== ITEMS ==========
+    doc.setFont('Helvetica', 'normal');
+    doc.setFontSize(8);
+    
+    if (receipt.items && receipt.items.length > 0) {
+      receipt.items.forEach((item: any, index: number) => {
+        const itemName = item.product.name;
+        const itemTotal = item.product.price * item.quantity;
+        
+        // Nombre del producto
+        doc.setFont('Helvetica', 'bold');
+        const nameLines = doc.splitTextToSize(itemName, contentWidth - 4);
+        doc.text(nameLines, margin + 1, yPos);
+        yPos += (nameLines.length * 3.5) + 1;
+        
+        // Detalles
+        doc.setFont('Helvetica', 'normal');
+        doc.setFontSize(7);
+        const detailText = `${item.quantity}x $${item.product.price.toLocaleString('es-CO')}`;
+        doc.text(detailText, margin + 2, yPos);
+        
+        const totalText = `$${itemTotal.toLocaleString('es-CO')}`;
+        doc.text(totalText, pageWidth - margin - 1, yPos, { align: 'right' });
+        yPos += 4;
+        
+        // Línea separadora entre items
+        if (index < receipt.items.length - 1) {
+          doc.setLineWidth(0.2);
+          doc.line(margin, yPos, pageWidth - margin, yPos);
+          yPos += 1;
+        }
+      });
+    }
+    
     yPos += 3;
     
-    // ========== TOTAL ==========
+    // Línea separadora gruesa
+    doc.setLineWidth(0.8);
+    doc.line(margin, yPos, pageWidth - margin, yPos);
+    yPos += 6;
+    
+    // ========== SUBTOTAL Y TOTAL ==========
+    doc.setFont('Helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.text('SUBTOTAL:', margin + 1, yPos);
+    doc.text(`$${receipt.total.toLocaleString('es-CO')}`, pageWidth - margin - 1, yPos, { align: 'right' });
+    yPos += 5;
+    
+    // TOTAL DESTACADO
     doc.setFont('Helvetica', 'bold');
-    doc.setFontSize(10);
-    const totalLines = doc.splitTextToSize(`TOTAL: $${receipt.total.toLocaleString('es-CO')}`, contentWidth - 2);
-    doc.text(totalLines, pageWidth / 2, yPos, { align: 'center' });
+    doc.setFontSize(12);
+    doc.text('TOTAL:', margin + 1, yPos);
+    doc.text(`$${receipt.total.toLocaleString('es-CO')}`, pageWidth - margin - 1, yPos, { align: 'right' });
     yPos += 7;
     
     // Línea separadora
-    doc.setLineWidth(0.3);
+    doc.setLineWidth(0.8);
     doc.line(margin, yPos, pageWidth - margin, yPos);
-    yPos += 3;
+    yPos += 6;
     
     // ========== MÉTODO DE PAGO ==========
     const paymentMethod = receipt.paymentMethod === 'cash' ? 'EFECTIVO' : 'NEQUI';
     doc.setFont('Helvetica', 'bold');
-    doc.setFontSize(8);
-    doc.text(`Pago: ${paymentMethod}`, pageWidth / 2, yPos, { align: 'center' });
+    doc.setFontSize(9);
+    doc.text(`METODO DE PAGO`, pageWidth / 2, yPos, { align: 'center' });
     yPos += 5;
+    
+    doc.setFont('Helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.text(paymentMethod, pageWidth / 2, yPos, { align: 'center' });
+    yPos += 7;
+    
+    // Línea separadora
+    doc.setLineWidth(0.5);
+    doc.line(margin, yPos, pageWidth - margin, yPos);
+    yPos += 6;
     
     // ========== PIE DE PÁGINA ==========
     doc.setFont('Helvetica', 'bold');
-    doc.setFontSize(7);
+    doc.setFontSize(9);
     doc.text('COMPRA REALIZADA', pageWidth / 2, yPos, { align: 'center' });
-    yPos += 3;
+    yPos += 5;
     
     doc.setFont('Helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.text('De forma exitosa', pageWidth / 2, yPos, { align: 'center' });
+    yPos += 6;
+    
     doc.setFontSize(7);
+    doc.setTextColor(50, 50, 50);
     doc.text('Gracias por tu compra', pageWidth / 2, yPos, { align: 'center' });
-    yPos += 3;
+    yPos += 4;
     
     doc.text('Vuelve pronto!', pageWidth / 2, yPos, { align: 'center' });
-    yPos += 3;
+    yPos += 6;
     
     // Línea punteada final
     doc.setLineWidth(0.3);
+    doc.setTextColor(0, 0, 0);
     doc.line(margin, yPos, pageWidth - margin, yPos);
     
     // Descargar

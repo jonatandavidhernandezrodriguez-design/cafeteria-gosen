@@ -44,7 +44,7 @@ export default function ReceiptModal({
 
   const handlePrint = () => {
     if (receiptRef.current) {
-      const printWindow = window.open('', '', 'width=450,height=600');
+      const printWindow = window.open('', '', 'width=450,height=700');
       if (printWindow) {
         const html = `
           <!DOCTYPE html>
@@ -57,36 +57,49 @@ export default function ReceiptModal({
               body { 
                 font-family: 'Courier New', monospace; 
                 background: white; 
-                padding: 10px;
+                padding: 8px;
                 width: 80mm;
                 margin: 0 auto;
+                color: #000;
               }
               .receipt { 
                 width: 100%; 
                 text-align: center; 
-                color: #000;
                 font-size: 11px;
               }
               .header { 
-                border-bottom: 1px solid #000; 
-                padding-bottom: 8px; 
+                border-bottom: 2px solid #000; 
+                padding: 8px 0;
                 margin-bottom: 8px; 
               }
               .title { 
-                font-size: 14px; 
+                font-size: 16px; 
                 font-weight: bold; 
-                margin-bottom: 3px; 
+                margin-bottom: 4px; 
               }
               .subtitle { 
-                font-size: 9px; 
-                color: #333; 
+                font-size: 10px; 
+                color: #000; 
               }
               .info { 
-                font-size: 9px; 
+                font-size: 8px; 
                 border-bottom: 1px solid #000; 
-                padding-bottom: 8px; 
+                padding: 8px 0;
                 margin-bottom: 8px; 
               }
+              .info-line { margin-bottom: 3px; }
+              .table-header {
+                font-size: 8px;
+                font-weight: bold;
+                display: grid;
+                grid-template-columns: 1fr 60px 60px;
+                gap: 4px;
+                border-bottom: 1px dotted #000;
+                padding-bottom: 4px;
+                margin-bottom: 6px;
+              }
+              .table-header span:last-child,
+              .item-price { text-align: right; }
               .items { 
                 text-align: left;
                 border-bottom: 1px solid #000; 
@@ -94,39 +107,70 @@ export default function ReceiptModal({
                 margin-bottom: 8px; 
               }
               .item { 
-                font-size: 9px; 
-                margin-bottom: 6px; 
-                word-wrap: break-word;
+                font-size: 8px; 
+                margin-bottom: 8px;
+                border-bottom: 0.5px dotted #ccc;
+                padding-bottom: 4px;
+              }
+              .item:last-child {
+                border-bottom: none;
               }
               .item-name { 
                 font-weight: bold;
-                margin-bottom: 2px;
+                margin-bottom: 3px;
+                word-wrap: break-word;
               }
               .item-detail { 
-                font-size: 8px; 
+                font-size: 7px; 
                 color: #333;
+                display: grid;
+                grid-template-columns: auto 1fr auto;
+                gap: 4px;
+              }
+              .item-qty { text-align: left; }
+              .item-unit { text-align: center; }
+              .item-subtotal { text-align: right; }
+              .subtotal {
+                font-size: 8px;
+                display: grid;
+                grid-template-columns: 1fr auto;
+                gap: 8px;
+                margin-bottom: 8px;
+                padding-bottom: 6px;
+                border-bottom: 0.5px solid #000;
               }
               .total { 
-                font-size: 13px; 
+                font-size: 14px; 
                 font-weight: bold; 
-                border-bottom: 1px solid #000;
-                padding: 6px 0; 
-                margin-bottom: 8px; 
+                display: grid;
+                grid-template-columns: auto 1fr auto;
+                gap: 8px;
+                margin-bottom: 10px;
+                align-items: center;
               }
-              .payment { 
-                font-size: 10px; 
+              .payment-section {
+                border-top: 1px solid #000;
+                border-bottom: 1px solid #000;
+                padding: 8px 0;
+                margin: 8px 0;
+              }
+              .payment-label { 
+                font-size: 8px; 
                 font-weight: bold; 
-                margin-bottom: 8px; 
+                margin-bottom: 4px;
+              }
+              .payment-method { 
+                font-size: 10px; 
+                font-weight: bold;
               }
               .footer { 
-                font-size: 9px; 
-                color: #000; 
-                border-top: 1px solid #000; 
-                padding-top: 8px; 
+                font-size: 8px;
+                padding-top: 8px;
               }
+              .footer-line { margin-bottom: 4px; }
+              .footer-line.bold { font-weight: bold; }
               @media print { 
                 body { padding: 0; width: 80mm; }
-                .receipt { font-size: 11px; }
               }
             </style>
           </head>
@@ -138,34 +182,53 @@ export default function ReceiptModal({
               </div>
               
               <div class="info">
-                <div>Recibo: <strong>${receiptNumber}</strong></div>
-                <div>${new Date().toLocaleDateString('es-CO')}</div>
-                <div>${new Date().toLocaleTimeString('es-CO', {
+                <div class="info-line">Recibo: <strong>${receiptNumber}</strong></div>
+                <div class="info-line">${new Date().toLocaleDateString('es-CO')}</div>
+                <div class="info-line">${new Date().toLocaleTimeString('es-CO', {
                   hour: '2-digit',
                   minute: '2-digit',
                 })}</div>
-                <div style="margin-top: 4px;">Cliente: <strong>${customerName || 'CLIENTE'}</strong></div>
+                <div class="info-line" style="margin-top: 3px;">Cliente: <strong>${customerName || 'CLIENTE'}</strong></div>
+              </div>
+              
+              <div class="table-header">
+                <span>PRODUCTO</span>
+                <span>CANT</span>
+                <span>TOTAL</span>
               </div>
               
               <div class="items">
                 ${items.map((item) => `
                   <div class="item">
                     <div class="item-name">${item.product.name}</div>
-                    <div class="item-detail">${item.quantity}x $${item.product.price.toLocaleString('es-CO')} = $${(item.product.price * item.quantity).toLocaleString('es-CO')}</div>
+                    <div class="item-detail">
+                      <span class="item-qty">${item.quantity}x</span>
+                      <span class="item-unit">$${item.product.price.toLocaleString('es-CO')}</span>
+                      <span class="item-subtotal">$${(item.product.price * item.quantity).toLocaleString('es-CO')}</span>
+                    </div>
                   </div>
                 `).join('')}
               </div>
               
-              <div class="total">
-                TOTAL: $${total.toLocaleString('es-CO')}
+              <div class="subtotal">
+                <span>SUBTOTAL:</span>
+                <span>$${total.toLocaleString('es-CO')}</span>
               </div>
               
-              <div class="payment">
-                Pago: ${paymentMethodLabel.label}
+              <div class="total">
+                <span>TOTAL:</span>
+                <span></span>
+                <span>$${total.toLocaleString('es-CO')}</span>
+              </div>
+              
+              <div class="payment-section">
+                <div class="payment-label">METODO DE PAGO</div>
+                <div class="payment-method">${paymentMethodLabel.label}</div>
               </div>
               
               <div class="footer">
-                <div style="font-weight: bold;">COMPRA REALIZADA</div>
+                <div class="footer-line bold">COMPRA REALIZADA</div>
+                <div class="footer-line">De forma exitosa</div>
                 <div style="margin-top: 6px;">Gracias por tu compra</div>
                 <div>Vuelve pronto!</div>
               </div>
