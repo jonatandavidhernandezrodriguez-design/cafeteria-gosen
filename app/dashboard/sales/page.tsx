@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { PageContainer, Button, Card, Input } from '@/app/components/ui';
 import { Product } from '@/app/types/menu';
 import Image from 'next/image';
-import { getProducts, addSale, updateProductStock, recordProductSale, getOrCreateCustomer } from '@/app/lib/store';
+import { addSale, updateProductStock, recordProductSale, getOrCreateCustomer } from '@/app/lib/store';
 import { formatCOP } from '@/app/lib/currency';
 import ReceiptModal from '@/app/components/ReceiptModal';
+import { useProducts } from '@/app/lib/useProducts';
 
 interface CartItem {
   product: Product;
@@ -23,11 +24,11 @@ interface Receipt {
 }
 
 export default function SalesPage() {
+  const { products } = useProducts();
   const [cart, setCart] = useState<CartItem[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [customerName, setCustomerName] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'nequi'>('cash');
-  const [products, setProducts] = useState<Product[]>([]);
   const [receipt, setReceipt] = useState<Receipt>({
     isOpen: false,
     total: 0,
@@ -36,18 +37,6 @@ export default function SalesPage() {
     itemCount: 0,
     items: [],
   });
-
-  useEffect(() => {
-    const loadProducts = async () => {
-      try {
-        const prods = await getProducts();
-        setProducts(prods);
-      } catch (error) {
-        console.error('Error loading products:', error);
-      }
-    };
-    loadProducts();
-  }, []);
 
   const filteredProducts = products.filter(
     (p) =>
