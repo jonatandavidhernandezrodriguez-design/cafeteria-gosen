@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { formatCOP } from '@/app/lib/currency';
+import { exportReceiptToPDF } from '@/app/lib/pdf-export';
 
 interface CartItem {
   product: {
@@ -43,11 +44,24 @@ export default function ReceiptModal({
     window.print();
   };
 
+  const handleExportPDF = () => {
+    const receipt = {
+      customerName,
+      paymentMethod,
+      total,
+      items: items.map(item => ({
+        product: item.product,
+        quantity: item.quantity
+      }))
+    };
+    exportReceiptToPDF(receipt, `factura-${receiptNumber}.pdf`);
+  };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 receipt-modal-container">
-      <div className="bg-white rounded-lg shadow-2xl w-full max-w-sm max-h-screen overflow-auto font-mono text-sm receipt-modal-content">
+      <div className="bg-white rounded-lg shadow-2xl w-full max-w-sm overflow-auto receipt-modal-content">
         {/* Receipt Body - estilo ticket de caja */}
-        <div className="p-6 text-gray-900">
+        <div className="p-4 text-gray-900" style={{ fontSize: '10px', lineHeight: '1.2' }}>
           {/* Encabezado */}
           <div className="text-center border-b-2 border-dashed border-gray-400 pb-4 mb-4">
             <p className="text-lg font-bold">☕ CAFETERÍA GOSEN</p>
@@ -117,16 +131,22 @@ export default function ReceiptModal({
           </div>
 
           {/* Botones */}
-          <div className="flex gap-3 mt-6">
+          <div className="flex flex-col gap-2 mt-6">
             <button
               onClick={handlePrint}
-              className="flex-1 px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold rounded-lg transition duration-200"
+              className="w-full px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold rounded-lg transition duration-200"
             >
               🖨️ Imprimir
             </button>
             <button
+              onClick={handleExportPDF}
+              className="w-full px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold rounded-lg transition duration-200"
+            >
+              📥 Descargar PDF
+            </button>
+            <button
               onClick={onClose}
-              className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold rounded-lg transition duration-200"
+              className="w-full px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold rounded-lg transition duration-200"
             >
               ✓ Cerrar
             </button>

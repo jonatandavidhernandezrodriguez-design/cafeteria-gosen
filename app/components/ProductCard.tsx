@@ -16,15 +16,32 @@ interface ProductCardProps {
 export function ProductCard({ product, onEdit, onDelete, onToggleActive }: ProductCardProps) {
   return (
     <Card variant="elevated" padding="md" className="flex flex-col h-full hover:shadow-soft-lg transition-shadow">
-      {/* Imagen */}
-      <div className="relative w-full h-48 mb-4 bg-gray-100 rounded-lg overflow-hidden">
-        {product.imageUrl ? (
-          <Image
-            src={product.imageUrl}
-            alt={product.name}
-            fill
-            className="object-cover hover:scale-105 transition-transform duration-300"
-          />
+      {/* Imagen - Contenedor responsivo */}
+      <div className="relative w-full h-48 mb-4 bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center flex-shrink-0">
+        {product.imageUrl && product.imageUrl.trim() ? (
+          product.imageUrl.startsWith('data:') ? (
+            <img
+              src={product.imageUrl}
+              alt={product.name}
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                display: 'block'
+              }}
+            />
+          ) : (
+            <div style={{ width: '100%', height: '100%', position: 'relative', overflow: 'hidden' }}>
+              <Image
+                src={product.imageUrl}
+                alt={product.name}
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                style={{ objectFit: 'cover' }}
+                priority={false}
+              />
+            </div>
+          )
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary-100 to-accent-100">
             <span className="text-4xl">📦</span>

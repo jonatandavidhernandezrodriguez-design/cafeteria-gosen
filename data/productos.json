@@ -1,20 +1,11 @@
 [
   {
     "name": "chicha de arroz",
-    "price": 2000,
-    "cost": 0,
+    "price": 2,
+    "cost": 2,
     "isActive": true,
-    "category": "",
-    "stock": 9,
-    "id": "1771198741519"
-  },
-  {
-    "name": "fgdg",
-    "price": 2333,
-    "cost": 0,
-    "isActive": true,
-    "category": "coffee",
-    "stock": 2,
-    "id": "1771199415456"
+    "category": "pastries",
+    "stock": 1,
+    "id": "1771203037331"
   }
 ]

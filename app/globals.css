@@ -120,84 +120,183 @@ body {
     -webkit-print-color-adjust: exact !important;
     color-adjust: exact !important;
     print-color-adjust: exact !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
   
   html, body {
     background: white !important;
-    margin: 0 !important;
-    padding: 0 !important;
     width: 100% !important;
-    height: auto !important;
+    height: 100% !important;
   }
   
-  /* Hide everything except receipt modal */
+  /* Hide everything by default */
   body > * {
     display: none !important;
   }
   
-  /* Show only receipt container */
+  /* Show only receipt modal */
   .receipt-modal-container {
     display: block !important;
-    position: relative !important;
+    position: static !important;
+    background: white !important;
     width: 100% !important;
     height: auto !important;
-    inset: auto !important;
-    background: white !important;
     margin: 0 !important;
     padding: 0 !important;
+    box-shadow: none !important;
   }
   
   .receipt-modal-content {
     display: block !important;
-    position: relative !important;
+    position: static !important;
     background: white !important;
-    width: 100% !important;
+    width: 80mm !important;
     height: auto !important;
-    max-width: none !important;
-    overflow: visible !important;
+    max-width: 80mm !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
     box-shadow: none !important;
     border-radius: 0 !important;
-    padding: 24px !important;
-    margin: 0 !important;
-    page-break-inside: avoid !important;
+    overflow: visible !important;
+    border: none !important;
   }
   
-  /* Ensure all text content is visible */
-  .receipt-modal-container * {
-    background: transparent !important;
+  /* Show all children with proper styling */
+  .receipt-modal-content > * {
     display: block !important;
-  }
-  
-  /* Override specific element styles */
-  .text-gray-600,
-  .text-gray-700,
-  .text-gray-900,
-  .text-blue-600,
-  .text-green-600 {
-    color: black !important;
-  }
-  
-  .bg-black,
-  .bg-opacity-50,
-  .bg-gray-50,
-  .bg-gradient-to-r {
+    margin: 0 !important;
+    padding: 0 !important;
     background: white !important;
+    color: black !important;
+    font-size: 10pt !important;
+    line-height: 1.2 !important;
   }
   
-  .border-dashed,
-  .border {
-    border-color: #999 !important;
+  /* Text elements */
+  p, div, span {
+    display: inline !important;
+  }
+  
+  p {
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  
+  /* Borders */
+  .border-b, .border-t, .border-l, .border-r {
+    border-color: black !important;
+    border-style: solid !important;
+  }
+  
+  .border-b-2 {
+    border-bottom: 2px solid black !important;
+  }
+  
+  .border-b {
+    border-bottom: 1px solid black !important;
+  }
+  
+  .border-dashed {
     border-style: dashed !important;
   }
   
-  /* Hide non-content elements */
+  /* Spacing */
+  .pb-3, .pb-4 {
+    padding-bottom: 0 !important;
+    margin-bottom: 4pt !important;
+  }
+  
+  .mb-4, .mb-3 {
+    margin-bottom: 4pt !important;
+  }
+  
+  .pt-2 {
+    padding-top: 2pt !important;
+  }
+  
+  .pt-3 {
+    padding-top: 3pt !important;
+  }
+  
+  .py-1 {
+    padding: 1pt 0 !important;
+    margin: 1pt 0 !important;
+  }
+  
+  /* Flexbox for layout */
+  .flex {
+    display: flex !important;
+  }
+  
+  .justify-between {
+    justify-content: space-between !important;
+  }
+  
+  .text-center {
+    text-align: center !important;
+  }
+  
+  .text-right {
+    text-align: right !important;
+  }
+  
+  .text-left {
+    text-align: left !important;
+  }
+  
+  /* Text styles */
+  .text-xs {
+    font-size: 8pt !important;
+  }
+  
+  .text-sm {
+    font-size: 9pt !important;
+  }
+  
+  .text-lg {
+    font-size: 11pt !important;
+  }
+  
+  .text-xl {
+    font-size: 12pt !important;
+  }
+  
+  .font-bold {
+    font-weight: bold !important;
+  }
+  
+  .font-semibold {
+    font-weight: 600 !important;
+  }
+  
+  /* Hide buttons */
   button,
+  input[type="button"],
+  input[type="submit"],
   .pointer-events-none {
     display: none !important;
   }
   
-  /* Preserve text styling */
-  .font-mono {
-    font-family: 'Courier New', monospace !important;
+  /* Colors */
+  .text-gray-900 {
+    color: black !important;
+  }
+  
+  .text-gray-600 {
+    color: #333 !important;
+  }
+  
+  .text-blue-600 {
+    color: black !important;
+  }
+  
+  .bg-gray-50 {
+    background: white !important;
+  }
+  
+  .bg-gray-100 {
+    background: white !important;
   }
 }

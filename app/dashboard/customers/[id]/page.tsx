@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import { PageContainer, Button, Card } from '@/app/components/ui';
 import { getCustomer, getCustomerHistory, Customer, SaleItem } from '@/app/lib/store';
@@ -18,12 +18,13 @@ interface HistoryItem {
 }
 
 interface CustomerDetailPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
-export default function CustomerDetailPage({ params }: CustomerDetailPageProps) {
+export default function CustomerDetailPage({ params: paramPromise }: CustomerDetailPageProps) {
+  const params = use(paramPromise);
   const [customer, setCustomer] = useState<Customer | undefined>(undefined);
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [loading, setLoading] = useState(true);

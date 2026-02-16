@@ -127,12 +127,26 @@ export async function updateProduct(id: string, updates: Partial<Product>): Prom
 }
 
 export async function deleteProduct(id: string): Promise<boolean> {
-  const res = await fetch('/api/productos', {
-    method: 'DELETE',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ id }),
-  });
-  return res.ok;
+  try {
+    const res = await fetch('/api/productos', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    });
+    
+    if (!res.ok) {
+      const error = await res.json();
+      console.error('Delete error:', error);
+      alert(`❌ Error al eliminar: ${error.error || 'Unknown error'}`);
+      return false;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('deleteProduct error:', error);
+    alert(`❌ Error: ${error instanceof Error ? error.message : 'Unknown'}`);
+    return false;
+  }
 }
 
 export async function recordProductSale(_productId: string, _quantity: number, _price: number): Promise<boolean> {
@@ -260,15 +274,25 @@ export async function updateCustomer(id: string, updates: Partial<Customer>): Pr
 // ================
 export async function getCustomerHistory(customerId: string) {
   const customer = await getCustomer(customerId);
-  if (!customer) return [];
+  if (!customer) {
+    console.warn(`Customer not found with ID: ${customerId}`);
+    return [];
+  }
 
   const sales = await getSales();
   const customerNameLower = customer.name.toLowerCase().trim();
 
+  console.log(`Searching history for customer: "${customer.name}" (${customerId})`);
+  console.log(`Total sales in system: ${sales.length}`);
+
   const history = sales
     .filter((s) => {
       const saleName = (s.customerName || '').toLowerCase().trim();
-      return saleName === customerNameLower;
+      const matches = saleName === customerNameLower;
+      if (matches) {
+        console.log(`Found matching sale: ${saleName} matched ${customerNameLower}`);
+      }
+      return matches;
     })
     .map((s) => ({
       id: s.id,
@@ -282,6 +306,7 @@ export async function getCustomerHistory(customerId: string) {
     }))
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
+  console.log(`History items found: ${history.length}`);
   return history;
 }
 

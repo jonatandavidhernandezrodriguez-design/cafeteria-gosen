@@ -5,6 +5,7 @@ import { PageContainer, Card } from '@/app/components/ui';
 import { getSales } from '@/app/lib/store';
 import { formatCOP } from '@/app/lib/currency';
 import ReceiptModal from '@/app/components/ReceiptModal';
+import { exportSalesToPDF } from '@/app/lib/pdf-export';
 
 interface SaleItem {
   productId: string;
@@ -56,6 +57,14 @@ export default function ReportsPage() {
   const handleCloseReceipt = () => {
     setShowReceipt(false);
     setSelectedSale(null);
+  };
+
+  const handleExportPDF = () => {
+    if (sales.length === 0) {
+      alert('No hay ventas para exportar');
+      return;
+    }
+    exportSalesToPDF(sales, `ventas-${new Date().toISOString().split('T')[0]}.pdf`);
   };
 
   const handleExportCSV = () => {
@@ -155,12 +164,18 @@ export default function ReportsPage() {
             </Card>
           </div>
 
-          <div className="mb-6">
+          <div className="mb-6 flex gap-3">
             <button
               onClick={handleExportCSV}
               className="px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold rounded-lg transition duration-200 inline-flex items-center gap-2"
             >
-              📥 Descargar CSV
+              📊 Descargar CSV
+            </button>
+            <button
+              onClick={handleExportPDF}
+              className="px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold rounded-lg transition duration-200 inline-flex items-center gap-2"
+            >
+              📄 Descargar PDF
             </button>
           </div>
 

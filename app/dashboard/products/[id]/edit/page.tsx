@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { PageContainer, Button } from '@/app/components/ui';
@@ -11,9 +11,9 @@ import { obtenerClaveValida } from '@/app/lib/auth-utils';
 import PINVerification from '@/app/components/PINVerification';
 
 interface EditProductPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 interface FormData {
@@ -26,7 +26,8 @@ interface FormData {
   category: string;
 }
 
-export default function EditProductPage({ params }: EditProductPageProps) {
+export default function EditProductPage({ params: paramPromise }: EditProductPageProps) {
+  const params = use(paramPromise);
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [showPINModal, setShowPINModal] = useState(false);
@@ -73,35 +74,41 @@ export default function EditProductPage({ params }: EditProductPageProps) {
     setIsLoading(true);
     
     try {
-      // No enviar imageUrl si es un dataURL muy largo (base64)
+      // Determinar si la imagen es base64 o URL
       let imageUrl = formData.imageUrl;
-      if (imageUrl && imageUrl.startsWith('data:image/') && imageUrl.length > 1000) {
-        // Si es una nueva imagen en base64, no la enviamos (es muy grande)
-        imageUrl = product?.imageUrl || ''; // Usar la anterior o vacío
+      if (imageUrl && imageUrl.startsWith('data:image/')) {
+        // Si es muy long base64, no enviar (lo guardamos localmente)
+        if (imageUrl.length > 500000) { // 500KB
+          alert('⚠️ La imagen es muy grande. Se guardará la imagen anterior.');
+          imageUrl = product?.imageUrl || '';
+        }
+        // Si es pequeña, mantenerla
       }
 
-      // Actualizar producto en el store
+      // Actualizar producto
       const updates = {
         name: formData.name,
-        price: Number(formData.price),
-        cost: Number(formData.cost),
-        imageUrl: imageUrl,
-        isActive: formData.isActive,
-        description: formData.description,
-        category: formData.category,
+        price: Number(formData.price) || 0,
+        cost: Number(formData.cost) || 0,
+        imageUrl: imageUrl || '',
+        isActive: formData.isActive || true,
+        description: formData.description || '',
+        category: formData.category || '',
       };
 
+      console.log('Updating product:', params.id, updates);
+      
       const ok = await updateProduct(params.id, updates);
       if (!ok) {
-        alert('Error al actualizar el producto. Intenta de nuevo.');
+        console.error('Failed to update product');
         return;
       }
 
-      // Redirigir a la página de productos
+      alert('✅ Producto actualizado correctamente');
       router.push('/dashboard/products');
     } catch (error) {
       console.error('Error al actualizar producto:', error);
-      alert('Error al actualizar el producto');
+      alert(`❌ Error: ${error instanceof Error ? error.message : 'Desconocido'}`);
     } finally {
       setIsLoading(false);
     }

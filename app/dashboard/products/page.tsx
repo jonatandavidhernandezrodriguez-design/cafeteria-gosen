@@ -59,8 +59,15 @@ export default function ProductsPage() {
       return;
     }
     if (!confirm('¿Eliminar producto? Esta acción es irreversible.')) return;
-    await deleteProduct(productId);
-    await loadProducts();
+    setIsLoading(true);
+    try {
+      const success = await deleteProduct(productId);
+      if (success) {
+        await loadProducts();
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleToggleActive = async (productId: string, isActive: boolean) => {

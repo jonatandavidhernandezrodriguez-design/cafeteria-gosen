@@ -99,5 +99,89 @@
     "status": "completed",
     "id": "1771198747988",
     "date": "2026-02-15T23:39:07.988Z"
+  },
+  {
+    "items": [
+      {
+        "productId": "1771199415456",
+        "name": "fgdg",
+        "price": 2333,
+        "cost": 0,
+        "quantity": 2,
+        "subtotal": 4666
+      }
+    ],
+    "subtotal": 3779.46,
+    "iva": 886.54,
+    "total": 4666,
+    "profit": 4666,
+    "customerName": "f",
+    "paymentMethod": "cash",
+    "status": "completed",
+    "id": "1771201337110",
+    "date": "2026-02-16T00:22:17.110Z"
+  },
+  {
+    "items": [
+      {
+        "productId": "1771198741519",
+        "name": "chicha de arroz",
+        "price": 2000,
+        "cost": 0,
+        "quantity": 1,
+        "subtotal": 2000
+      }
+    ],
+    "subtotal": 1620,
+    "iva": 380,
+    "total": 2000,
+    "profit": 2000,
+    "customerName": "hjj",
+    "paymentMethod": "cash",
+    "status": "completed",
+    "id": "1771202395304",
+    "date": "2026-02-16T00:39:55.304Z"
+  },
+  {
+    "items": [
+      {
+        "productId": "1771202590563",
+        "name": "chicha de arroz",
+        "price": 2000,
+        "cost": 0,
+        "quantity": 1,
+        "subtotal": 2000
+      }
+    ],
+    "subtotal": 1620,
+    "iva": 380,
+    "total": 2000,
+    "profit": 2000,
+    "customerName": "wds",
+    "paymentMethod": "cash",
+    "status": "completed",
+    "id": "1771202659004",
+    "date": "2026-02-16T00:44:19.004Z"
+  },
+  {
+    "items": [
+      {
+        "productId": "1771203037331",
+        "name": "chicha de arroz",
+        "price": 2,
+        "cost": 2,
+        "quantity": 1,
+        "subtotal": 2
+      }
+    ],
+    "subtotal": 1.62,
+    "iva": 0.38,
+    "total": 2,
+    "profit": 0,
+    "customerName": "ar",
+    "paymentMethod": "cash",
+    "status": "completed",
+    "id": "1771203058885",
+    "date": "2026-02-16T00:50:58.885Z"
   }
 ]

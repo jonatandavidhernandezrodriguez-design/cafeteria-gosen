@@ -73,12 +73,19 @@ export async function PUT(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   try {
     const { id } = await req.json();
+    if (!id) {
+      return NextResponse.json({ error: 'Product ID required' }, { status: 400 });
+    }
+    
     const productos = await readStorage<Product[]>('productos', []);
-    
     const filtered = productos.filter(p => p.id !== id);
-    await writeStorage('productos', filtered);
     
-    return NextResponse.json({ success: true });
+    if (filtered.length === productos.length) {
+      return NextResponse.json({ error: 'Product not found' }, { status: 404 });
+    }
+    
+    await writeStorage('productos', filtered);
+    return NextResponse.json({ success: true, id }, { status: 200 });
   } catch (error) {
     console.error('DELETE /api/productos error:', error);
     const errorMsg = error instanceof Error ? error.message : 'Failed to delete product';
