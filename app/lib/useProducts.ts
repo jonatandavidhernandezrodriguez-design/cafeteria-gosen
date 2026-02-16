@@ -1,58 +1,52 @@
 import { useState, useEffect } from 'react';
 import { Product } from '@/app/types/menu';
-import { useLocalStorage } from '@/app/lib/useLocalStorage';
 
 /**
  * Hook personalizado para manejar productos con persistencia en localStorage
  * NOTA: La fuente de verdad es localStorage. La API es solo para sincronización.
  */
 export function useProducts() {
-  // localStorage para persistencia - es la fuente de verdad
-  const [cachedProducts, setCachedProducts, isLoaded] = useLocalStorage<Product[]>(
-    'cafeteria_productos',
-    []
-  );
-
-  // Estado para los productos actual
-  const [products, setProducts] = useState<Product[]>(cachedProducts);
-  const [isLoading, setIsLoading] = useState(false);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLoaded, setIsLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Sincronizar productos con localStorage cada vez que cambien
+  // Cargar productos al montar - ÚNICO EFECTO
   useEffect(() => {
-    if (isLoaded) {
-      setCachedProducts(products);
-    }
-  }, [products, setCachedProducts, isLoaded]);
+    const loadProducts = async () => {
+      try {
+        // Paso 1: Cargar de localStorage (fuente primaria)
+        if (typeof window !== 'undefined') {
+          const cached = localStorage.getItem('cafeteria_productos');
+          if (cached) {
+            const parsed = JSON.parse(cached);
+            setProducts(parsed);
+          }
+        }
 
-  // Cargar productos desde localStorage al montar
-  useEffect(() => {
-    if (isLoaded) {
-      // Usar datos de localStorage como fuente principal
-      setProducts(cachedProducts);
-      
-      // Intentar sincronizar con API en background (sin bloquear UI)
-      syncWithAPI();
-    }
-  }, [isLoaded, cachedProducts]);
+        // Paso 2: Sincronizar con API en background (sin esperar, sin bloquear)
+        try {
+          const res = await fetch('/api/productos', { cache: 'no-cache' });
+          if (res.ok) {
+            const data = await res.json();
+            setProducts(data);
+            // Guardar en localStorage
+            if (typeof window !== 'undefined') {
+              localStorage.setItem('cafeteria_productos', JSON.stringify(data));
+            }
+          }
+        } catch (apiErr) {
+          console.warn('API sync failed, using localStorage:', apiErr);
+          // No pasa nada, usamos lo que hay en localStorage
+        }
+      } finally {
+        setIsLoading(false);
+        setIsLoaded(true);
+      }
+    };
 
-  const syncWithAPI = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      const res = await fetch('/api/productos', { cache: 'no-cache' });
-      if (!res.ok) throw new Error(`API error: ${res.status}`);
-      
-      const data = await res.json();
-      setProducts(data);
-    } catch (err) {
-      console.warn('API sync failed, using localStorage:', err);
-      // Si falla la API, no pasa nada - localStorage ya tiene los datos
-      setError(null); // No mostrar error al usuario
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    loadProducts();
+  }, []); // Solo una vez al montar
 
   return {
     products,
