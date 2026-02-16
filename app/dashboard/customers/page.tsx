@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { PageContainer, Button, Card } from '@/app/components/ui';
 import Link from 'next/link';
-import { getCustomers, getSales } from '@/app/lib/store';
+import { getCustomers, getSales, deleteCustomer } from '@/app/lib/store';
 import { formatCOP } from '@/app/lib/currency';
 import { obtenerClaveValida } from '@/app/lib/auth-utils';
 import PINVerification from '@/app/components/PINVerification';
@@ -114,6 +114,24 @@ export default function CustomersPage() {
     setShowPINModal(false);
   };
 
+  const handleDeleteCustomer = async (id: string, name: string) => {
+    if (!confirm(`¿Estás seguro de que deseas eliminar al cliente "${name}"? Esta acción no se puede deshacer.`)) {
+      return;
+    }
+
+    try {
+      const success = await deleteCustomer(id);
+      if (success) {
+        setCustomers(customers.filter(c => c.id !== id));
+      } else {
+        alert('Error al eliminar el cliente');
+      }
+    } catch (error) {
+      console.error('Error deleting customer:', error);
+      alert('Error al eliminar el cliente');
+    }
+  };
+
   return (
     <PageContainer
       title="Clientes"
@@ -191,11 +209,19 @@ export default function CustomersPage() {
                       <p className="font-semibold text-blue-600">{formatCOP(customer.totalPurchases)}</p>
                     </td>
                     <td className="py-3 px-4">
-                      <Link href={`/dashboard/customers/${customer.id}`}>
-                        <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
-                          Ver Historial
+                      <div className="flex gap-2">
+                        <Link href={`/dashboard/customers/${customer.id}`}>
+                          <button className="text-sm text-blue-600 hover:text-blue-700 font-medium hover:underline">
+                            Ver Historial
+                          </button>
+                        </Link>
+                        <button
+                          onClick={() => handleDeleteCustomer(customer.id, customer.name)}
+                          className="px-3 py-2 text-sm text-red-600 hover:text-red-800 hover:bg-red-50 rounded border border-red-200 transition-colors"
+                        >
+                          🗑️ Eliminar
                         </button>
-                      </Link>
+                      </div>
                     </td>
                   </tr>
                 ))}

@@ -464,6 +464,41 @@ export async function updateCustomer(id: string, updates: Partial<Customer>): Pr
   return res.ok;
 }
 
+export async function deleteCustomer(id: string): Promise<boolean> {
+  try {
+    const res = await fetch(`/api/clientes?id=${id}`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    if (res.ok) {
+      // Also delete from localStorage
+      if (typeof window !== 'undefined') {
+        const customersStr = localStorage.getItem('cafeteria_clientes');
+        if (customersStr) {
+          const customers = JSON.parse(customersStr) as Customer[];
+          const filtered = customers.filter(c => c.id !== id);
+          localStorage.setItem('cafeteria_clientes', JSON.stringify(filtered));
+        }
+      }
+      return true;
+    }
+  } catch (error) {
+    console.warn('API delete failed, falling back to localStorage:', error);
+  }
+
+  // Fallback: delete from localStorage directly
+  if (typeof window !== 'undefined') {
+    const customersStr = localStorage.getItem('cafeteria_clientes');
+    if (customersStr) {
+      const customers = JSON.parse(customersStr) as Customer[];
+      const filtered = customers.filter(c => c.id !== id);
+      localStorage.setItem('cafeteria_clientes', JSON.stringify(filtered));
+      return true;
+    }
+  }
+  return false;
+}
+
 // ================
 // HISTORY & ANALYTICS
 // ================
