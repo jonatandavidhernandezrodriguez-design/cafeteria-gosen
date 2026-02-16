@@ -72,164 +72,123 @@ export function exportSalesToPDF(sales: any[], filename: string = 'ventas.pdf') 
 
 export function exportReceiptToPDF(receipt: any, filename: string = 'factura.pdf') {
   try {
-    // Crear documento en tamaño A4 estándar para mejor impresión
+    // Crear documento tipo ticket térmico (80mm de ancho es estándar)
     const doc = new jsPDF({
       orientation: 'portrait',
       unit: 'mm',
-      format: 'a4'
+      format: [80, 200] // 80mm ancho, ajustable largo
     });
     
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
-    const margin = 15;
+    const margin = 3;
     const contentWidth = pageWidth - (margin * 2);
-    let yPos = 20;
+    let yPos = margin;
     
-    // Función para dibujar rectángulo relleno
-    const drawFilledRect = (x: number, y: number, width: number, height: number, color: [number, number, number]) => {
-      doc.setFillColor(...color);
-      doc.rect(x, y, width, height, 'F');
-    };
-
-    // Función para dibujar rectángulo con borde
-    const drawBorderedRect = (x: number, y: number, width: number, height: number, borderColor: [number, number, number]) => {
-      doc.setDrawColor(...borderColor);
-      doc.setLineWidth(0.5);
-      doc.rect(x, y, width, height);
-    };
-    
-    // ========== ENCABEZADO CON FONDO AZUL ==========
-    drawFilledRect(0, 0, pageWidth, yPos + 10, [37, 99, 235]);
-    
-    doc.setTextColor(255, 255, 255);
-    doc.setFont('Helvetica', 'bold');
-    doc.setFontSize(22);
-    doc.text('CAFETERIA GOSEN', pageWidth / 2, 12, { align: 'center' });
-    
-    doc.setTextColor(255, 255, 255);
-    doc.setFont('Helvetica', 'normal');
-    doc.setFontSize(9);
-    doc.text('Desde 2024', pageWidth / 2, 18, { align: 'center' });
-    
-    yPos = 35;
-    
-    // ========== INFORMACIÓN DEL RECIBO ==========
+    // ========== ENCABEZADO ==========
     doc.setTextColor(0, 0, 0);
     doc.setFont('Helvetica', 'bold');
-    doc.setFontSize(8);
-    const receiptNumber = `RCP${Date.now().toString().slice(-6)}`;
+    doc.setFontSize(12);
+    doc.text('CAFETERIA GOSEN', pageWidth / 2, yPos, { align: 'center' });
+    yPos += 5;
     
-    // Caja gris para la info del recibo
-    drawBorderedRect(margin, yPos - 2, contentWidth, 16, [180, 180, 180]);
-    doc.setFillColor(245, 245, 245);
-    doc.rect(margin, yPos - 2, contentWidth, 16, 'F');
-    
-    doc.setTextColor(0, 0, 0);
     doc.setFont('Helvetica', 'normal');
     doc.setFontSize(8);
-    doc.text(`Recibo: ${receiptNumber}`, margin + 3, yPos + 2);
-    doc.text(new Date().toLocaleDateString('es-CO'), margin + 3, yPos + 6);
-    doc.text(new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }), margin + 3, yPos + 10);
-    doc.text(`Cliente: ${receipt.customerName || 'CLIENTE'}`, margin + 3, yPos + 14);
-    
-    yPos += 20;
-    
-    // ========== TABLA DE ITEMS ==========
-    doc.setDrawColor(37, 99, 235);
-    doc.setLineWidth(0.8);
-    doc.line(margin, yPos - 2, pageWidth - margin, yPos - 2);
-    
-    // Encabezado de tabla
-    doc.setFillColor(37, 99, 235);
-    doc.rect(margin, yPos - 5, contentWidth, 5, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFont('Helvetica', 'bold');
-    doc.setFontSize(8);
-    doc.text('PRODUCTO', margin + 2, yPos - 1);
-    doc.text('CANT', pageWidth - margin - 35, yPos - 1);
-    doc.text('UNITARIO', pageWidth - margin - 22, yPos - 1);
-    doc.text('TOTAL', pageWidth - margin - 5, yPos - 1, { align: 'right' });
-    
+    doc.text('Desde 2024', pageWidth / 2, yPos, { align: 'center' });
     yPos += 4;
     
-    // Items
-    doc.setTextColor(0, 0, 0);
+    // Línea punteada
+    doc.setDrawColor(0, 0, 0);
+    doc.setLineWidth(0.3);
+    doc.line(margin, yPos, pageWidth - margin, yPos);
+    yPos += 3;
+    
+    // ========== INFORMACIÓN DEL RECIBO ==========
+    const receiptNumber = `RCP${Date.now().toString().slice(-6)}`;
+    doc.setFontSize(7);
     doc.setFont('Helvetica', 'normal');
-    doc.setFontSize(8);
+    doc.text(`Recibo: ${receiptNumber}`, pageWidth / 2, yPos, { align: 'center' });
+    yPos += 3;
+    
+    doc.text(new Date().toLocaleDateString('es-CO'), pageWidth / 2, yPos, { align: 'center' });
+    yPos += 3;
+    
+    doc.text(new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }), pageWidth / 2, yPos, { align: 'center' });
+    yPos += 3;
+    
+    doc.setFont('Helvetica', 'bold');
+    doc.setFontSize(7);
+    const clientText = `Cliente: ${receipt.customerName || 'CLIENTE'}`;
+    doc.text(clientText, pageWidth / 2, yPos, { align: 'center' });
+    yPos += 4;
+    
+    // Línea separadora
+    doc.setLineWidth(0.3);
+    doc.line(margin, yPos - 1, pageWidth - margin, yPos - 1);
+    yPos += 2;
+    
+    // ========== ITEMS ==========
+    doc.setFont('Helvetica', 'normal');
+    doc.setFontSize(7);
     
     if (receipt.items && receipt.items.length > 0) {
-      receipt.items.forEach((item: any, index: number) => {
-        // Fondo alternado para legibilidad
-        if (index % 2 === 0) {
-          doc.setFillColor(250, 250, 250);
-          doc.rect(margin, yPos - 3, contentWidth, 5, 'F');
-        }
-        
+      receipt.items.forEach((item: any) => {
         const itemName = item.product.name;
         const itemTotal = item.product.price * item.quantity;
         
-        doc.text(itemName, margin + 2, yPos);
-        doc.text(item.quantity.toString(), pageWidth - margin - 35, yPos);
-        doc.text(`$${item.product.price.toLocaleString('es-CO')}`, pageWidth - margin - 22, yPos);
-        doc.text(`$${itemTotal.toLocaleString('es-CO')}`, pageWidth - margin - 1, yPos, { align: 'right' });
+        // Nombre del producto
+        const nameLines = doc.splitTextToSize(itemName, contentWidth - 8);
+        doc.text(nameLines, margin + 1, yPos);
+        yPos += (nameLines.length * 2.5);
         
-        yPos += 5;
+        // Cantidad x Precio = Total
+        const detailText = `${item.quantity}x $${item.product.price.toLocaleString('es-CO')} = $${itemTotal.toLocaleString('es-CO')}`;
+        doc.text(detailText, margin + 1, yPos);
+        yPos += 3;
       });
     }
     
     // Línea separadora
-    doc.setDrawColor(37, 99, 235);
-    doc.setLineWidth(0.8);
+    doc.setLineWidth(0.5);
     doc.line(margin, yPos, pageWidth - margin, yPos);
+    yPos += 3;
     
-    yPos += 4;
-    
-    // ========== TOTALES ==========
-    // Fondo para totales
-    drawFilledRect(margin, yPos - 2, contentWidth, 14, [237, 242, 255]);
-    drawBorderedRect(margin, yPos - 2, contentWidth, 14, [37, 99, 235]);
-    
-    doc.setTextColor(0, 0, 0);
+    // ========== TOTAL ==========
     doc.setFont('Helvetica', 'bold');
-    doc.setFontSize(11);
-    doc.text('TOTAL:', margin + 3, yPos + 3);
-    doc.setTextColor(37, 99, 235);
-    doc.text(`$${receipt.total.toLocaleString('es-CO')}`, pageWidth - margin - 3, yPos + 3, { align: 'right' });
+    doc.setFontSize(10);
+    const totalLines = doc.splitTextToSize(`TOTAL: $${receipt.total.toLocaleString('es-CO')}`, contentWidth - 2);
+    doc.text(totalLines, pageWidth / 2, yPos, { align: 'center' });
+    yPos += 7;
     
-    yPos += 16;
+    // Línea separadora
+    doc.setLineWidth(0.3);
+    doc.line(margin, yPos, pageWidth - margin, yPos);
+    yPos += 3;
     
     // ========== MÉTODO DE PAGO ==========
     const paymentMethod = receipt.paymentMethod === 'cash' ? 'EFECTIVO' : 'NEQUI';
-    drawFilledRect(margin, yPos, contentWidth, 8, [76, 175, 80]);
-    doc.setTextColor(255, 255, 255);
     doc.setFont('Helvetica', 'bold');
-    doc.setFontSize(9);
-    doc.text(`Metodo de Pago: ${paymentMethod}`, pageWidth / 2, yPos + 5, { align: 'center' });
-    
-    yPos += 12;
+    doc.setFontSize(8);
+    doc.text(`Pago: ${paymentMethod}`, pageWidth / 2, yPos, { align: 'center' });
+    yPos += 5;
     
     // ========== PIE DE PÁGINA ==========
-    doc.setTextColor(0, 0, 0);
     doc.setFont('Helvetica', 'bold');
-    doc.setFontSize(9);
-    doc.text('COMPRA REALIZADA EXITOSAMENTE', pageWidth / 2, yPos, { align: 'center' });
-    
-    yPos += 5;
-    doc.setFont('Helvetica', 'normal');
-    doc.setFontSize(8);
-    doc.setTextColor(100, 100, 100);
-    doc.text('Gracias por tu compra', pageWidth / 2, yPos, { align: 'center' });
-    doc.text('Vuelve pronto!', pageWidth / 2, yPos + 4, { align: 'center' });
-    
-    // Línea separadora final
-    doc.setDrawColor(180, 180, 180);
-    doc.setLineWidth(0.5);
-    doc.line(margin, yPos + 8, pageWidth - margin, yPos + 8);
-    
-    // Información de impresión
     doc.setFontSize(7);
-    doc.setTextColor(150, 150, 150);
-    doc.text(`${new Date().toLocaleDateString('es-CO')} ${new Date().toLocaleTimeString('es-CO')}`, pageWidth / 2, pageHeight - 8, { align: 'center' });
+    doc.text('COMPRA REALIZADA', pageWidth / 2, yPos, { align: 'center' });
+    yPos += 3;
+    
+    doc.setFont('Helvetica', 'normal');
+    doc.setFontSize(7);
+    doc.text('Gracias por tu compra', pageWidth / 2, yPos, { align: 'center' });
+    yPos += 3;
+    
+    doc.text('Vuelve pronto!', pageWidth / 2, yPos, { align: 'center' });
+    yPos += 3;
+    
+    // Línea punteada final
+    doc.setLineWidth(0.3);
+    doc.line(margin, yPos, pageWidth - margin, yPos);
     
     // Descargar
     doc.save(filename);
