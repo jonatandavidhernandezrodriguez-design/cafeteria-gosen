@@ -183,5 +183,26 @@
     "status": "completed",
     "id": "1771203058885",
     "date": "2026-02-16T00:50:58.885Z"
+  },
+  {
+    "items": [
+      {
+        "productId": "1771213023054",
+        "name": "f",
+        "price": 2,
+        "cost": 2,
+        "quantity": 1,
+        "subtotal": 2
+      }
+    ],
+    "subtotal": 1.62,
+    "iva": 0.38,
+    "total": 2,
+    "profit": 0,
+    "customerName": "toton",
+    "paymentMethod": "cash",
+    "status": "completed",
+    "id": "1771213444663",
+    "date": "2026-02-16T03:44:04.663Z"
   }
 ]
